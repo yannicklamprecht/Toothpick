@@ -1,4 +1,5 @@
 import java.io.File
+import java.util.LinkedList
 import org.ajoberstar.grgit.Grgit
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.submodule.SubmoduleStatusType
@@ -19,17 +20,8 @@ buildscript {
 }
 
 plugins {
+    java
     id("org.ajoberstar.grgit") version "4.0.2"
-}
-
-val upstreamRepository: Grgit by lazy {
-    val upstreamGitDir = File(rootProject.projectDir, "Paper/.git")
-    if (!upstreamGitDir.exists()) {
-        val repo = Git.open(upstreamGitDir)
-        repo.pull().call()
-        println("should be checked out tbfh")
-    }
-    Grgit.open(mapOf("dir" to upstreamGitDir.absolutePath))
 }
 
 extra["minecraftVersion"] = "1.15.2"
@@ -37,10 +29,19 @@ extra["minecraftVersion"] = "1.15.2"
 allprojects {
     group = "eu.mikroskeem.toothpick"
     version = "${rootProject.extra["minecraftVersion"]}-R0.1-SNAPSHOT"
+}
+
+subprojects {
+    apply(plugin = "java")
 
     repositories {
         mavenLocal()
         mavenCentral()
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
@@ -100,7 +101,7 @@ fun cmd(vararg args: String, directory: File = rootProject.projectDir, printToSt
             .directory(directory)
             .start()
     val output = p.inputStream.bufferedReader().use {
-        val lines = java.util.LinkedList<String>()
+        val lines = LinkedList<String>()
         it.lines().peek(lines::add).forEach { line ->
             if (printToStdout) {
                 println(line)
