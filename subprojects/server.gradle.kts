@@ -40,7 +40,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File) {
         val artifactId = dependencyElem.search("artifactId").firstOrNull()!!.textContent
         val version = dependencyElem.search("version").firstOrNull()!!.textContent.applyReplacements(mapOf(
                 "project.version" to "${project.version}",
-                "minecraft.version" to "1.15.2"
+                "minecraft.version" to rootProject.extra["minecraftVersion"].toString()
         ))
         val scope = dependencyElem.search("scope").firstOrNull()?.textContent
         val classifier = dependencyElem.search("classifier").firstOrNull()?.textContent
@@ -48,6 +48,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File) {
         val dependencyString = "${groupId}:${artifactId}:${version}${classifier?.run {":$this" } ?: ""}"
         logger.debug("Read dependency '{}' from '{}'", dependencyString, pomFile.absolutePath)
 
+        // Special case API
         if (groupId == "com.destroystokyo.paper" && artifactId == "paper-api") {
             implementation(project(":toothpick-api"))
             return@forEach

@@ -32,9 +32,11 @@ val upstreamRepository: Grgit by lazy {
     Grgit.open(mapOf("dir" to upstreamGitDir.absolutePath))
 }
 
+extra["minecraftVersion"] = "1.15.2"
+
 allprojects {
     group = "eu.mikroskeem.toothpick"
-    version = "1.15.2-R0.1-SNAPSHOT"
+    version = "${rootProject.extra["minecraftVersion"]}-R0.1-SNAPSHOT"
 
     repositories {
         mavenLocal()
