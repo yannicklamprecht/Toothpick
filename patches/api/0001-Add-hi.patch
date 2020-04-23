@@ -1,20 +1,13 @@
-From ce313567e4b41eb879d2b65828c0d9f77adb7d16 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Mark Vainomaa <mikroskeem@mikroskeem.eu>
 Date: Thu, 23 Apr 2020 04:05:53 +0300
 Subject: [PATCH] Add hi
 
----
- hi | 1 +
- 1 file changed, 1 insertion(+)
- create mode 100644 hi
 
 diff --git a/hi b/hi
 new file mode 100644
-index 00000000..45b983be
+index 0000000000000000000000000000000000000000..45b983be36b73c0788dc9cbcb76cbb80fc7bb057
 --- /dev/null
 +++ b/hi
 @@ -0,0 +1 @@
 +hi
--- 
-2.25.1
-
