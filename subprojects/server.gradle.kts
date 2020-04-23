@@ -1,10 +1,17 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 import kotlinx.dom.elements
 import kotlinx.dom.parseXml
 import kotlinx.dom.search
+import java.text.SimpleDateFormat
+import java.util.Date
 
 plugins {
     java
+    id("com.github.johnrengelman.shadow")
 }
+
+val minecraftVersion: String = rootProject.extra["minecraftVersion"] as String
 
 repositories {
     loadRepositories(File(project.projectDir, "pom.xml"))
@@ -17,6 +24,32 @@ dependencies {
 val test by tasks.getting(Test::class) {
     onlyIf { false } // NEVER
 }
+
+val shadowJar by tasks.getting(ShadowJar::class) {
+    transform(Log4j2PluginsCacheFileTransformer::class.java)
+
+    manifest {
+        attributes(
+                "Main-Class" to "org.bukkit.craftbukkit.Main",
+                "Implementation-Title" to "CraftBukkit",
+                //"Implementation-Version" to "${describe}",
+                "Implementation-Vendor" to SimpleDateFormat("yyyyMMdd-HHmm").format(Date()),
+                "Specification-Title" to "Bukkit",
+                "Specification-Version" to "${project.version}",
+                "Specification-Vendor" to "Bukkit Team"
+        )
+    }
+
+    // Don't like to do this but sadly have to do this for compatibility reasons
+    val relocVersion = minecraftVersion.replace(".", "_")
+    relocate("org.bukkit.craftbukkit", "org.bukkit.craftbukkit.v$relocVersion") {
+        exclude("org.bukkit.craftbukkit.Main*")
+    }
+
+    relocate("net.minecraft.server", "net.minecraft.server.v$relocVersion")
+}
+
+tasks["build"].dependsOn(shadowJar)
 
 fun RepositoryHandler.loadRepositories(pomFile: File) {
     val dom = parseXml(pomFile)
@@ -40,7 +73,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File) {
         val artifactId = dependencyElem.search("artifactId").firstOrNull()!!.textContent
         val version = dependencyElem.search("version").firstOrNull()!!.textContent.applyReplacements(mapOf(
                 "project.version" to "${project.version}",
-                "minecraft.version" to rootProject.extra["minecraftVersion"].toString()
+                "minecraft.version" to minecraftVersion
         ))
         val scope = dependencyElem.search("scope").firstOrNull()?.textContent
         val classifier = dependencyElem.search("classifier").firstOrNull()?.textContent

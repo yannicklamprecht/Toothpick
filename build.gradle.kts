@@ -21,6 +21,7 @@ buildscript {
 
 plugins {
     java
+    id("com.github.johnrengelman.shadow") version "5.2.0" apply false
     id("org.ajoberstar.grgit") version "4.0.2"
 }
 

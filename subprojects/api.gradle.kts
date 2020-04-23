@@ -14,6 +14,12 @@ dependencies {
     loadDependencies(File(project.projectDir, "pom.xml"))
 }
 
+val jar by tasks.getting(Jar::class) {
+    manifest {
+        attributes("Automatic-Module-Name" to "org.bukkit")
+    }
+}
+
 fun RepositoryHandler.loadRepositories(pomFile: File) {
     val dom = parseXml(pomFile)
     val repositoriesBlock = dom.search("repositories").firstOrNull() ?: return
