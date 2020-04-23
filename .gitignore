@@ -1,5 +1,25 @@
-# Ignore Gradle project-specific cache directory
-.gradle
+# JVM crash related
+core.*
+hs_err_pid*
 
-# Ignore Gradle build output directory
-build
+# IntelliJ IDEA
+*.iml
+.idea/
+out/
+
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# Gradle
+!gradle-wrapper.jar
+.gradle/
+build/
+*/build/
+
+# OS X quirks
+.DS_Store
+
+# Toothpick
+Toothpick-API/
+Toothpick-Server/
