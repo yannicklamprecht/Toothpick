@@ -46,6 +46,22 @@ subprojects {
     }
 }
 
+val toothpickSubprojects = mapOf(
+        // API project
+        "Toothpick-API" to listOf(
+                File(rootProject.projectDir, "Paper/Paper-API"),
+                project(":toothpick-api").projectDir,
+                File(rootProject.projectDir, "patches/api")
+        ),
+
+        // Server project
+        "Toothpick-Server" to listOf(
+                File(rootProject.projectDir, "Paper/Paper-Server"),
+                project(":toothpick-server").projectDir,
+                File(rootProject.projectDir, "patches/server")
+        )
+)
+
 val initGitSubmodules by tasks.creating {
     onlyIf {
         !File("Paper/.git").exists()
@@ -79,31 +95,14 @@ val setupPaper by tasks.creating {
     }
 }
 
-val applyPaperPatches by tasks.creating {
+val applyPatches by tasks.creating {
     //dependsOn(setupPaper)
     doLast {
-        val subprojects = mapOf(
-                // API project
-                "Toothpick-API" to listOf(
-                        File(rootProject.projectDir, "Paper/Paper-API"),
-                        project(":toothpick-api").projectDir,
-                        File(rootProject.projectDir, "patches/api")
-                ),
-
-                // Server project
-                "Toothpick-Server" to listOf(
-                        File(rootProject.projectDir, "Paper/Paper-Server"),
-                        project(":toothpick-server").projectDir,
-                        File(rootProject.projectDir, "patches/server")
-                )
-        )
-
-        // TODO: this task is lazy af
-        for ((name, stuff) in subprojects) {
+        for ((name, stuff) in toothpickSubprojects) {
             val (sourceRepo, projectDir, patchesDir) = stuff
 
             // Reset or initialize subproject
-            logger.info("Resetting subproject {}", name)
+            println(">>> Resetting subproject $name")
             if (projectDir.exists()) {
                 ensureSuccess(cmd("git", "reset", "--hard", "origin/master", directory = projectDir))
             } else {
@@ -111,14 +110,38 @@ val applyPaperPatches by tasks.creating {
             }
 
             // Apply patches
-            logger.info("Applying patches to {}", name)
             val patches = patchesDir.listFiles()
                     ?.filter { it.name.endsWith(".patch") }
                     ?.takeIf { it.isNotEmpty() } ?: continue
+
+            println(">>> Applying patches to $name")
             val gitCommand = arrayListOf("git", "am", "--3way")
             gitCommand.addAll(patches.map { it.absolutePath })
             ensureSuccess(cmd(*gitCommand.toTypedArray(), directory = projectDir, printToStdout = true))
-            logger.info("Done")
+            println(">>> Done")
+        }
+    }
+}
+
+val rebuildPatches by tasks.creating {
+    doLast {
+        for ((name, stuff) in toothpickSubprojects) {
+            val (sourceRepo, projectDir, patchesDir) = stuff
+
+            println(">>> Rebuilding patches for $name")
+
+            // Nuke old patches
+            patchesDir.listFiles()
+                    ?.filter { it.name.endsWith(".patch") }
+                    ?.forEach { it.delete() }
+
+            // And generate new
+            ensureSuccess(cmd("git", "format-patch",
+                    "--no-stat", "--zero-commit", "--full-index", "--no-signature", "-N",
+                    "-o", patchesDir.absolutePath, "origin/master",
+                    directory = projectDir,
+                    printToStdout = true
+            ))
         }
     }
 }
