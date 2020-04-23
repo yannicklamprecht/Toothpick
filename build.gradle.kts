@@ -128,6 +128,10 @@ val rebuildPatches by tasks.creating {
         for ((name, stuff) in toothpickSubprojects) {
             val (sourceRepo, projectDir, patchesDir) = stuff
 
+            if (!patchesDir.exists()) {
+                patchesDir.mkdirs()
+            }
+
             println(">>> Rebuilding patches for $name")
 
             // Nuke old patches
