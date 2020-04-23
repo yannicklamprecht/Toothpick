@@ -65,7 +65,6 @@ val initGitSubmodules by tasks.creating {
 
 val setupPaper by tasks.creating {
     dependsOn(initGitSubmodules)
-    onlyIf { false } // TODO: manually change atm
     doLast {
         val paperDir = File(rootProject.projectDir, "Paper")
         val (exit, _) = if (true) { // TODO: make this configurable, not everybody uses nix lol
@@ -80,17 +79,46 @@ val setupPaper by tasks.creating {
 }
 
 val applyPaperPatches by tasks.creating {
-    dependsOn(setupPaper)
-    onlyIf { false } // TODO: manually change atm
+    //dependsOn(setupPaper)
     doLast {
-        val paperApiDir = File(rootProject.projectDir, "Paper/Paper-API")
-        val paperServerDir = File(rootProject.projectDir, "Paper/Paper-Server")
-        val apiDir = project(":toothpick-api").projectDir
-        val serverDir = project(":toothpick-server").projectDir
+        val subprojects = mapOf(
+                // API project
+                "Toothpick-API" to listOf(
+                        File(rootProject.projectDir, "Paper/Paper-API"),
+                        project(":toothpick-api").projectDir,
+                        File(rootProject.projectDir, "patches/api")
+                ),
+
+                // Server project
+                "Toothpick-Server" to listOf(
+                        File(rootProject.projectDir, "Paper/Paper-Server"),
+                        project(":toothpick-server").projectDir,
+                        File(rootProject.projectDir, "patches/server")
+                )
+        )
 
         // TODO: this task is lazy af
-        ensureSuccess(cmd("git", "clone", paperApiDir.absolutePath, apiDir.absolutePath))
-        ensureSuccess(cmd("git", "clone", paperServerDir.absolutePath, serverDir.absolutePath))
+        for ((name, stuff) in subprojects) {
+            val (sourceRepo, projectDir, patchesDir) = stuff
+
+            // Reset or initialize subproject
+            logger.info("Resetting subproject {}", name)
+            if (projectDir.exists()) {
+                ensureSuccess(cmd("git", "reset", "--hard", "origin/master", directory = projectDir))
+            } else {
+                ensureSuccess(cmd("git", "clone", sourceRepo.absolutePath, projectDir.absolutePath))
+            }
+
+            // Apply patches
+            logger.info("Applying patches to {}", name)
+            val patches = patchesDir.listFiles()
+                    ?.filter { it.name.endsWith(".patch") }
+                    ?.takeIf { it.isNotEmpty() } ?: continue
+            val gitCommand = arrayListOf("git", "am", "--3way")
+            gitCommand.addAll(patches.map { it.absolutePath })
+            ensureSuccess(cmd(*gitCommand.toTypedArray(), directory = projectDir, printToStdout = true))
+            logger.info("Done")
+        }
     }
 }
 
