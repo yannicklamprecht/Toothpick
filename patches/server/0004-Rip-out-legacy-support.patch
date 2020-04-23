@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Mark Vainomaa <mikroskeem@mikroskeem.eu>
+Date: Fri, 24 Apr 2020 00:05:12 +0300
+Subject: [PATCH] Rip out legacy support
+
+
+diff --git a/src/test/java/org/bukkit/craftbukkit/legacy/LegacyTest.java b/src/test/java/org/bukkit/craftbukkit/legacy/LegacyTest.java
+index 7b132de5536da5d8a3d6ffe08e45248f93846199..b544408be05376adbe1d1e20c654fa64f3ac4eb8 100644
+--- a/src/test/java/org/bukkit/craftbukkit/legacy/LegacyTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/legacy/LegacyTest.java
+@@ -9,6 +9,7 @@ import org.bukkit.support.AbstractTestingBase;
+ import org.junit.Assert;
+ import org.junit.Test;
+ 
++@org.junit.Ignore // Toothpick - Rip out legacy support
+ public class LegacyTest extends AbstractTestingBase {
+ 
+     private final Set<Material> INVALIDATED_MATERIALS = new HashSet<>(Arrays.asList(Material.ACACIA_BUTTON, Material.ACACIA_PRESSURE_PLATE, Material.ACACIA_TRAPDOOR, Material.AIR, Material.ATTACHED_MELON_STEM, Material.ATTACHED_PUMPKIN_STEM,
