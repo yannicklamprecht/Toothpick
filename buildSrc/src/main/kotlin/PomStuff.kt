@@ -10,7 +10,7 @@ import java.io.File
 
 fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, addAPI: Boolean = false) {
     if (!pomFile.exists()) {
-        project.logger.warn("$pomFile doesn't exist, please run `setupUpstream`!")
+        project.logger.warn("$pomFile doesn't exist, please run `setupUpstream` and then `applyPatches`!")
         return
     }
 
@@ -56,7 +56,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, add
 
 fun RepositoryHandler.loadRepositories(pomFile: File, project: Project) {
     if (!pomFile.exists()) {
-        project.logger.warn("$pomFile doesn't exist, please run `setupUpstream`!")
+        project.logger.warn("$pomFile doesn't exist, please run `setupUpstream` and then `applyPatches`!")
         return
     }
 
