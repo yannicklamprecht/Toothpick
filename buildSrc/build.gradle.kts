@@ -17,9 +17,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        register("MiniPaper") {
-            id = "minipaper"
-            implementationClass = "MiniPaper"
+        register("ToothPick") {
+            id = "toothpick"
+            implementationClass = "ToothPick"
         }
     }
 }

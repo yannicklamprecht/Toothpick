@@ -10,12 +10,13 @@ import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
 import java.io.File
 import java.time.LocalDateTime
+import stuff.taskGroupPrivate
 
 fun applyPatches(project: Project): Task {
     val date = LocalDateTime.now().toString()
 
     val vanilla: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         doLast {
             val cb = File(cbDir)
             ensureSuccess(runGitCmd("checkout", "-B", "patched", "HEAD", directory = cb))
@@ -38,7 +39,7 @@ fun applyPatches(project: Project): Task {
     }
 
     val cb: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(vanilla)
         doLast {
             val cb = File(cbDir)
@@ -57,7 +58,7 @@ fun applyPatches(project: Project): Task {
     }
 
     val spigot: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(cb)
         doLast {
             applyPatch(File(workdir, "Bukkit"), File(spigotDir, "Spigot-API"), "HEAD", logger)
@@ -66,7 +67,7 @@ fun applyPatches(project: Project): Task {
     }
 
     val importMcDev: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(spigot)
         doLast {
             // ./scripts/importmcdev.sh "$basedir" || exit 1
@@ -77,7 +78,7 @@ fun applyPatches(project: Project): Task {
     }
 
     val cleanSpigotShit: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(importMcDev)
         doLast {
             val server = File(spigotDir, "Spigot-Server")
@@ -90,7 +91,7 @@ fun applyPatches(project: Project): Task {
     }
 
     val paper: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(cleanSpigotShit)
         doLast {
             applyPatch(File(spigotDir, "Spigot-API"), File(basedir, "Paper-API"), "HEAD", logger)

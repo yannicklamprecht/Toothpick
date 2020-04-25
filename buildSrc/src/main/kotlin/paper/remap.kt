@@ -11,10 +11,11 @@ import org.gradle.kotlin.dsl.getValue
 import java.io.File
 import java.net.URL
 import java.security.MessageDigest
+import stuff.taskGroupPrivate
 
 fun remap(project: Project): Task {
     val downloadVanilla: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         doLast {
             val jar = File("$jarpath.jar")
             if (!jar.exists()) {
@@ -36,7 +37,7 @@ fun remap(project: Project): Task {
 
     // TODO maybe we can avoid spawning new jvms here by launching special source directly?
     val mapClasses: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(downloadVanilla)
         doLast {
             val jar = File("$jarpath-cl.jar")
@@ -47,7 +48,7 @@ fun remap(project: Project): Task {
     }
 
     val mapMembers: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(mapClasses)
         doLast {
             val jar = File("$jarpath-m.jar")
@@ -58,7 +59,7 @@ fun remap(project: Project): Task {
     }
 
     val remapJar: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(mapMembers)
         doLast {
             val jar = File("$jarpath-mapped.jar")
@@ -69,7 +70,7 @@ fun remap(project: Project): Task {
     }
 
     val install: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(remapJar)
         doLast {
             val cb = File("$workdir/CraftBukkit")

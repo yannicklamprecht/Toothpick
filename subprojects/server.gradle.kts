@@ -32,7 +32,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     }
 
     // Don't like to do this but sadly have to do this for compatibility reasons
-    val relocVersion = minipaper.minecraftVersion.replace(".", "_")
+    val relocVersion = toothPick.minecraftVersion.replace(".", "_")
     relocate("org.bukkit.craftbukkit", "org.bukkit.craftbukkit.v$relocVersion") {
         exclude("org.bukkit.craftbukkit.Main*")
     }

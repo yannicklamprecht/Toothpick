@@ -10,11 +10,11 @@ import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
 import java.io.File
 import java.net.URL
-
+import stuff.taskGroupPrivate
 
 fun decompile(project: Project): Task {
     val downloadVersionData: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         doLast {
             val file = File(versionjson)
             if (!file.exists()) {
@@ -45,7 +45,7 @@ fun decompile(project: Project): Task {
     }
 
     val downloadLibs: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(downloadVersionData)
         doLast {
             val group = "com.mojang"
@@ -86,7 +86,7 @@ fun decompile(project: Project): Task {
     }
 
     val extractClasses: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(downloadLibs)
         doLast {
             val classFile = File(classDir);
@@ -98,7 +98,7 @@ fun decompile(project: Project): Task {
     }
 
     val decomp: Task by project.tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(extractClasses)
         doLast {
             val spigotDecompFolder = File("$spigotDecompDir/");

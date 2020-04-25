@@ -15,9 +15,3 @@ val jar by tasks.getting(Jar::class) {
         attributes("Automatic-Module-Name" to "org.bukkit")
     }
 }
-
-val testTask : Task by tasks.creating {
-    doLast {
-        logger.lifecycle("Initializing ${minipaper.forkName} with minecraft version ${minipaper.minecraftVersion}. Upstream is ${minipaper.upstreamName}" )
-    }
-}

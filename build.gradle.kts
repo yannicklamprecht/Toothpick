@@ -1,12 +1,12 @@
 plugins {
     java
-    minipaper
+    toothpick
     id("com.github.johnrengelman.shadow") version "5.2.0" apply false
 }
 
-initMiniPaperTasks()
+initToothPickTasks()
 
-minipaper {
+toothpick {
     minecraftVersion = "1.15.2"
     forkName = "MiniPaper"
     groupId = "me.minidigger.MiniPaper"
@@ -30,13 +30,13 @@ minipaper {
 }
 
 allprojects {
-    group = minipaper.groupId
-    version = "${minipaper.minecraftVersion}-R0.1-SNAPSHOT"
+    group = toothPick.groupId
+    version = "${toothPick.minecraftVersion}-R0.1-SNAPSHOT"
 }
 
 subprojects {
     apply(plugin = "java")
-    apply(plugin = "minipaper")
+    apply(plugin = "toothpick")
 
     repositories {
         mavenLocal()

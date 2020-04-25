@@ -6,13 +6,15 @@ import paper.applyPatches
 import paper.decompile
 import paper.init
 import paper.remap
+import stuff.taskGroupPrivate
+import stuff.taskGroupPublic
 import java.io.File
 
-fun Project.initMiniPaperTasks() = run {
+fun Project.initToothPickTasks() = run {
     val initGitSubmodules: Task by project.tasks.creating {
-        group = "MiniPaper"
+        group = taskGroupPublic
         onlyIf {
-            !File("${minipaper.upstreamName}/.git").exists() || !File("${minipaper.upstreamName}/work/BuldData.git").exists()
+            !File("${toothPick.upstreamName}/.git").exists() || !File("${toothPick.upstreamName}/work/BuldData.git").exists()
         }
         doLast {
             val (exit, _) = cmd("git", "submodule", "update", "--init", "--recursive", directory = rootDir, printToStdout = true)
@@ -24,10 +26,10 @@ fun Project.initMiniPaperTasks() = run {
     initGitSubmodules.name
 
     val loadData: Task by tasks.creating {
-        group = "MiniPaperInternal"
+        group = taskGroupPrivate
         dependsOn(initGitSubmodules)
         doLast {
-            @Suppress("EXPERIMENTAL_API_USAGE") init(project, minipaper.upstreamName)
+            @Suppress("EXPERIMENTAL_API_USAGE") init(project, toothPick.upstreamName)
         }
     }
 
@@ -38,15 +40,15 @@ fun Project.initMiniPaperTasks() = run {
     val applySpigotPatches = applyPatches(project)
     applySpigotPatches.mustRunAfter(decompile)
     val setupUpstream: Task by tasks.creating {
-        group = "MiniPaper"
+        group = taskGroupPublic
         dependsOn(loadData, remap, decompile, applySpigotPatches)
     }
     setupUpstream.name
 
     val applyPatches: Task by tasks.creating {
-        group = "MiniPaper"
+        group = taskGroupPublic
         doLast {
-            for ((name, stuff) in minipaper.subProjects) {
+            for ((name, stuff) in toothPick.subProjects) {
                 val (sourceRepo, projectDir, patchesDir) = stuff
 
                 // Reset or initialize subproject
@@ -73,9 +75,9 @@ fun Project.initMiniPaperTasks() = run {
     applyPatches.name
 
     val rebuildPatches: Task by tasks.creating {
-        group = "MiniPaper"
+        group = taskGroupPublic
         doLast {
-            for ((name, stuff) in minipaper.subProjects) {
+            for ((name, stuff) in toothPick.subProjects) {
                 val (_, projectDir, patchesDir) = stuff
 
                 if (!patchesDir.exists()) {
@@ -102,14 +104,14 @@ fun Project.initMiniPaperTasks() = run {
     rebuildPatches.name
 
     val cleanUp: Task by tasks.creating {
-        group = "MiniPaper"
+        group = taskGroupPublic
         doLast {
-            for ((_, stuff) in minipaper.subProjects) {
+            for ((_, stuff) in toothPick.subProjects) {
                 val (_, projectDir, _) = stuff
                 logger.lifecycle("Deleating $projectDir...")
                 projectDir.deleteRecursively()
             }
-            val upstreamDir = File(rootProject.projectDir, minipaper.upstreamName)
+            val upstreamDir = File(rootProject.projectDir, toothPick.upstreamName)
             logger.lifecycle("Deleating $upstreamDir...")
             upstreamDir.deleteRecursively()
         }

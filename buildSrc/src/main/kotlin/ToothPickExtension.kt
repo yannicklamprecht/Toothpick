@@ -1,7 +1,7 @@
 import org.gradle.api.model.ObjectFactory
 import java.io.File
 
-open class MiniPaperExtension(@Suppress("UNUSED_PARAMETER") objects: ObjectFactory) {
+open class ToothPickExtension(@Suppress("UNUSED_PARAMETER") objects: ObjectFactory) {
 
     lateinit var minecraftVersion: String
     lateinit var forkName: String

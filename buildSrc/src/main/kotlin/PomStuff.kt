@@ -26,7 +26,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, add
         val artifactId = dependencyElem.search("artifactId").firstOrNull()!!.textContent
         val version = dependencyElem.search("version").firstOrNull()!!.textContent.applyReplacements(mapOf(
                 "project.version" to "${project.version}",
-                "minecraft.version" to project.minipaper.minecraftVersion
+                "minecraft.version" to project.toothPick.minecraftVersion
         ))
         val scope = dependencyElem.search("scope").firstOrNull()?.textContent
         val classifier = dependencyElem.search("classifier").firstOrNull()?.textContent
@@ -35,9 +35,9 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, add
         project.logger.debug("Read dependency '{}' from '{}'", dependencyString, pomFile.absolutePath)
 
         // Special case API
-        if (artifactId == "${project.minipaper.upstreamName.toLowerCase()}-api") {
+        if (artifactId == "${project.toothPick.upstreamName.toLowerCase()}-api") {
             if (addAPI) {
-                add("implementation", project(":${project.minipaper.forkName.toLowerCase()}-api"))
+                add("implementation", project(":${project.toothPick.forkName.toLowerCase()}-api"))
             }
             return@forEach
         }
