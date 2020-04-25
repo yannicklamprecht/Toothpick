@@ -1,4 +1,4 @@
 package stuff
 
-val taskGroupPublic = "toothpick"
-val taskGroupPrivate = "toothpickinternal"
+const val taskGroupPublic = "toothpick"
+const val taskGroupPrivate = "toothpickinternal"
