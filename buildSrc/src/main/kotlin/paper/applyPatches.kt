@@ -71,7 +71,15 @@ fun applyPatches(project: Project): Task {
         doLast {
             // ./scripts/importmcdev.sh "$basedir" || exit 1
 
-            // nuke shit
+            importLibrary("com.mojang", "authlib", "com/mojang/authlib", "yggdrasil/YggdrasilGameProfileRepository.java")
+            importLibrary("com.mojang", "datafixerupper", "com/mojang/datafixers/util", "Either.java")
+        }
+    }
+
+    val cleanSpigotShit: Task by project.tasks.creating {
+        group = "MiniPaperInternal"
+        dependsOn(importMcDev)
+        doLast {
             val server = File(spigotDir, "Spigot-Server")
             File(server, "nms-patches").deleteRecursively()
             File(server, "applyPatches.sh").deleteRecursively()
@@ -83,7 +91,7 @@ fun applyPatches(project: Project): Task {
 
     val paper: Task by project.tasks.creating {
         group = "MiniPaperInternal"
-        dependsOn(importMcDev)
+        dependsOn(cleanSpigotShit)
         doLast {
             applyPatch(File(spigotDir, "Spigot-API"), File(basedir, "Paper-API"), "HEAD", logger)
             applyPatch(File(spigotDir, "Spigot-Server"), File(basedir, "Paper-Server"), "HEAD", logger)
@@ -134,6 +142,35 @@ private fun applyPatch(what: File, target: File, branch: String, logger: Logger)
     } else {
         statusFile.delete()
         logger.lifecycle("  Patches applied cleanly to ${target.name}")
+    }
+}
+
+private fun import() {
+    //export importedmcdev="$importedmcdev $1"
+    //    file="${1}.java"
+    //    target="$workdir/Spigot/Spigot-Server/src/main/java/$nms/$file"
+    //    base="$decompiledir/$nms/$file"
+    //
+    //    if [[ ! -f "$target" ]]; then
+    //        export MODLOG="$MODLOG  Imported $file from mc-dev\n";
+    //        #echo "Copying $base to $target"
+    //        cp "$base" "$target" || exit 1
+    //    else
+    //        echo "UN-NEEDED IMPORT: $file"
+    //    fi
+}
+
+private fun importLibrary(group: String, lib: String, prefix: String, vararg files: String) {
+    for (f in files) {
+        val file = "$prefix/$f"
+        val target = File(spigotDir).resolve("Spigot-Server/src/main/java/$file")
+        val targetDir = target.parentFile
+        targetDir.mkdirs()
+        val base = File(workdir).resolve("Minecraft/$minecraftversion/libraries/$group/$lib/$file")
+        if(!base.exists()) {
+            throw GradleException("Missing $base")
+        }
+        base.copyTo(target)
     }
 }
 

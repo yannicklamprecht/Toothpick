@@ -2,6 +2,7 @@ package paper
 
 import cmd
 import ensureSuccess
+import kotlinx.serialization.json.Json
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -23,7 +24,19 @@ fun decompile(project: Project): Task {
                     val manifest = URL("https://launchermeta.mojang.com/mc/game/version_manifest.json").readText()
                     val url = "https://" + manifest.substringAfter("{\"id\": \"${escaped}\",").substringBefore("$urlEncoded.json").substringAfter("https://") + "$urlEncoded.json"
                     logger.lifecycle("$versionjson - $url")
-                    file.writeText(URL(url).readText())
+                    val content = URL(url).readText();
+                    file.writeText(content)
+
+                    libDownloads = hashMapOf()
+
+                    @Suppress("EXPERIMENTAL_API_USAGE")
+                    Json.parseJson(content).jsonObject["libraries"]?.jsonArray?.forEach {
+                        val o = it.jsonObject
+                        val name = o["name"]!!.primitive.content.substringBeforeLast(":")
+                        val downloadUrl = o["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("url")!!.primitive.content.replace(".jar", "-sources.jar")
+                        libDownloads[name] = downloadUrl
+                    }
+
                 } catch (e: Exception) {
                     throw GradleException("Failed to download the version.json.", e)
                 }
@@ -35,35 +48,40 @@ fun decompile(project: Project): Task {
         group = "MiniPaperInternal"
         dependsOn(downloadVersionData)
         doLast {
-//            val group = "com.mojang"
-//            val groupEsp = "com\\.mojang"
-//            val groupPath = "com/mojang"
-//            val libPath = "$decompiledir/libraries/$group/"
-//            val libDir = File(libPath)
-//            libDir.mkdirs()
-//
-//            for (lib in listOf("datafixerupper", "authlib", "brigadier")) {
-//                val jarPath = "$libPath/${lib}-sources.jar"
-//                val destPath = "$libPath/${lib}"
-//                val jarFile = File(jarPath)
-//                val destFile = File(destPath)
-//
-//                if (!jarFile.exists()) {
-//                    //libesc=$(echo ${lib} | sed 's/\./\\]./g')
-//                    //            ver=$(grep -oE "${groupesc}:${libesc}:[0-9\.]+" "$versionjson" | sed "s/${groupesc}:${libesc}://g")
-//                    //            echo "Downloading ${group}:${lib}:${ver} Sources"
-//                    //            curl -s -o "$jar" "https://libraries.minecraft.net/${grouppath}/${lib}/${ver}/${lib}-${ver}-sources.jar"
-//                    //            set +e
-//                    //            grep "<html>" "$jar" && grep -oE "<title>.*?</title>" "$jar" && rm "$jar" && echo "Failed to download $jar" && exit 1
-//                    //            set -e
-//                }
-//
-//                if (!destFile.exists()) {
-//                    logger.lifecycle("Extracting $group:$lib Sources")
-//                    destFile.mkdirs()
-//                    ensureSuccess(cmd("jar", "xf", "\"$jarPath\"", directory = destFile))
-//                }
-//            }
+            val group = "com.mojang"
+            val libPath = "$decompiledir/libraries/$group/"
+            val libDir = File(libPath)
+            libDir.mkdirs()
+
+            for (lib in listOf("datafixerupper", "authlib", "brigadier")) {
+                val jarPath = "$libPath/${lib}-sources.jar"
+                val destPath = "$libPath/${lib}"
+                val jarFile = File(jarPath)
+                val destFile = File(destPath)
+
+                if (!jarFile.exists()) {
+                    logger.lifecycle("Downloading $group:$lib Sources")
+                    val url = libDownloads["$group:$lib"]
+                    if (url == null) {
+                        logger.warn("Couldn't download $group:$lib, couln't find url in $versionjson")
+                        continue
+                    }
+                    jarFile.writeBytes(URL(url).readBytes())
+                    val content = jarFile.readText()
+                    if (content.contains("<html>")) {
+                        val error = content.substringAfter("<title>").substringBefore("</title>")
+                        logger.warn("Couldn't download $jarPath: $error")
+                        jarFile.delete()
+                        continue
+                    }
+                }
+
+                if (!destFile.exists()) {
+                    logger.lifecycle("Extracting $group:$lib Sources")
+                    destFile.mkdirs()
+                    ensureSuccess(cmd("jar", "xf", "$jarPath", directory = destFile, printToStdout = true))
+                }
+            }
         }
     }
 

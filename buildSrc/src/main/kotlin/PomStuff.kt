@@ -14,7 +14,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, add
         return
     }
 
-    project.logger.lifecycle("Loading dependencies from pom $pomFile")
+    project.logger.info("Loading dependencies from pom $pomFile")
 
     val dom = parseXml(pomFile)
 
@@ -60,7 +60,7 @@ fun RepositoryHandler.loadRepositories(pomFile: File, project: Project) {
         return
     }
 
-    project.logger.lifecycle("Loading repositories from pom $pomFile")
+    project.logger.info("Loading repositories from pom $pomFile")
 
     val dom = parseXml(pomFile)
     val repositoriesBlock = dom.search("repositories").firstOrNull() ?: return

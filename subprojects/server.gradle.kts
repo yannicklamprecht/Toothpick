@@ -8,8 +8,6 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-logger.lifecycle("Setting up ${project.name}")
-
 repositories {
     loadRepositories(File(project.projectDir, "pom.xml"), project)
 }

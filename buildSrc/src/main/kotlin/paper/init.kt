@@ -29,6 +29,8 @@ lateinit var nmsDir: String
 
 lateinit var codePath: String
 
+var libDownloads = hashMapOf<String, String>()
+
 @UnstableDefault
 fun init(project: Project, upstreamName: String) {
     basedir = "${project.rootDir.absolutePath}/${upstreamName}"
@@ -46,7 +48,7 @@ fun init(project: Project, upstreamName: String) {
 
     decompiledir = "$workdir/Minecraft/$minecraftversion"
     jarpath = "$decompiledir/$minecraftversion"
-    versionjson = "$workdir/Minecraft/$minecraftversion/$minecraftversion.json";
+    versionjson = "$workdir/Minecraft/$minecraftversion/$minecraftversion.json"
     classDir = "$decompiledir/classes"
     spigotDecompDir = "$decompiledir/spigot"
     cbDir = "$workdir/CraftBukkit"
