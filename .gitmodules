@@ -1,3 +1,4 @@
-[submodule "Paper"]
-	path = Paper
+
+[submodule "Paper2"]
+	path = Paper2
 	url = https://github.com/PaperMC/Paper

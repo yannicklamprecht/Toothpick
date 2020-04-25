@@ -16,10 +16,11 @@ dependency-reduced-pom.xml
 .gradle/
 build/
 */build/
+.gradletasknamecache
 
 # OS X quirks
 .DS_Store
 
-# Toothpick
-Toothpick-API/
-Toothpick-Server/
+# MiniPaper
+MiniPaper-API/
+MiniPaper-Server/

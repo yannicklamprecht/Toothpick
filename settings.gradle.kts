@@ -1,11 +1,13 @@
-rootProject.name = "toothpick"
+var forkName = "MiniPaper"
 
-setupSubproject("toothpick-api") {
-    projectDir = File("Toothpick-API")
+rootProject.name = forkName
+
+setupSubproject("${forkName.toLowerCase()}-api") {
+    projectDir = File("$forkName-API")
     buildFileName = "../subprojects/api.gradle.kts"
 }
-setupSubproject("toothpick-server") {
-    projectDir = File("Toothpick-Server")
+setupSubproject("${forkName.toLowerCase()}-server") {
+    projectDir = File("$forkName-Server")
     buildFileName = "../subprojects/server.gradle.kts"
 }
 
