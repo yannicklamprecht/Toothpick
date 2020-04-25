@@ -24,6 +24,7 @@ lateinit var versionjson: String
 lateinit var classDir: String
 lateinit var spigotDecompDir: String
 lateinit var cbDir: String
+lateinit var spigotDir: String
 lateinit var nmsDir: String
 
 lateinit var codePath: String
@@ -49,6 +50,7 @@ fun init(project: Project, upstreamName: String) {
     classDir = "$decompiledir/classes"
     spigotDecompDir = "$decompiledir/spigot"
     cbDir = "$workdir/CraftBukkit"
+    spigotDir = "$workdir/Spigot"
     nmsDir = "$spigotDecompDir/net/minecraft/server"
 
     codePath = "src/main/java/net/minecraft/server"

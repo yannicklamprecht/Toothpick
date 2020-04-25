@@ -10,7 +10,7 @@ minipaper {
     minecraftVersion = "1.15.2"
     forkName = "MiniPaper"
     groupId = "me.minidigger.MiniPaper"
-    upstreamName = "Paper2"
+    upstreamName = "Paper"
 
     subProjects = mapOf(
             // API project
