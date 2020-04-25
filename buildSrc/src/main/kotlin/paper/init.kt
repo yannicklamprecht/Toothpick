@@ -3,10 +3,8 @@ package paper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import org.gradle.api.logging.Logger
+import org.gradle.api.Project
 import java.io.File
-
-var logger: Logger = MyProject.logger
 
 lateinit var basedir: String
 lateinit var workdir: String
@@ -31,8 +29,8 @@ lateinit var nmsDir: String
 lateinit var codePath: String
 
 @UnstableDefault
-fun init() {
-    basedir = "${MyProject.rootDir.absolutePath}/${MyProject.upstreamName}"
+fun init(project: Project, upstreamName: String) {
+    basedir = "${project.rootDir.absolutePath}/${upstreamName}"
     workdir = "$basedir/work"
     val info = Json.parse(BuildInfo.serializer(), File("$workdir/BuildData/info.json").readText())
 
@@ -47,13 +45,13 @@ fun init() {
 
     decompiledir = "$workdir/Minecraft/$minecraftversion"
     jarpath = "$decompiledir/$minecraftversion"
-    versionjson ="$workdir/Minecraft/$minecraftversion/$minecraftversion.json";
+    versionjson = "$workdir/Minecraft/$minecraftversion/$minecraftversion.json";
     classDir = "$decompiledir/classes"
     spigotDecompDir = "$decompiledir/spigot"
     cbDir = "$workdir/CraftBukkit"
     nmsDir = "$spigotDecompDir/net/minecraft/server"
 
-    codePath="src/main/java/net/minecraft/server"
+    codePath = "src/main/java/net/minecraft/server"
 
     File(decompiledir).mkdirs()
 }

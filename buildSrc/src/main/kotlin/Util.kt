@@ -1,8 +1,8 @@
 import java.io.File
 import java.util.*
 
-fun cmd(vararg args: String, directory: File = MyProject.project.rootProject.projectDir, printToStdout: Boolean = false): Pair<Int, String?> {
-    MyProject.logger.info("running " + args.joinToString(" "))
+fun cmd(vararg args: String, directory: File, printToStdout: Boolean = false): Pair<Int, String?> {
+//    MyProject.logger.info("running " + args.joinToString(" "))
     val p = ProcessBuilder()
             .command(*args)
             .redirectErrorStream(true)
@@ -12,7 +12,7 @@ fun cmd(vararg args: String, directory: File = MyProject.project.rootProject.pro
         val lines = LinkedList<String>()
         it.lines().peek(lines::add).forEach { line ->
             if (printToStdout) {
-                println(line)
+                println(line) // TODO use a logger here printToStdout=true -> lifecycle, else info (or lower)
             }
         }
         lines.joinToString(separator = "\n")

@@ -1,21 +1,42 @@
-
 plugins {
     java
+    minipaper
     id("com.github.johnrengelman.shadow") version "5.2.0" apply false
 }
-ProjectSingleton.project = project
-logger.info("initializing project...")
-initTasks()
 
-allprojects {
-    group = "eu.mikroskeem.toothpick"
-//    version = "${MyProject.minecraftVersion}-R0.1-SNAPSHOT"
+initMiniPaperTasks()
+
+minipaper {
+    minecraftVersion = "1.15.2"
+    forkName = "MiniPaper"
+    groupId = "me.minidigger.MiniPaper"
+    upstreamName = "Paper2"
+
+    subProjects = mapOf(
+            // API project
+            "$forkName-API" to listOf(
+                    File(rootProject.projectDir, "${upstreamName}/${upstreamName}-API"),
+                    project(":${forkName.toLowerCase()}-api").projectDir,
+                    File(rootProject.projectDir, "patches/api")
+            ),
+
+            // Server project
+            "$forkName-Server" to listOf(
+                    File(rootProject.projectDir, "${upstreamName}/${upstreamName}-Server"),
+                    project(":${forkName.toLowerCase()}-server").projectDir,
+                    File(rootProject.projectDir, "patches/server")
+            )
+    )
 }
 
-extra["settingUp"] = false
+allprojects {
+    group = minipaper.groupId
+    version = "${minipaper.minecraftVersion}-R0.1-SNAPSHOT"
+}
 
 subprojects {
     apply(plugin = "java")
+    apply(plugin = "minipaper")
 
     repositories {
         mavenLocal()

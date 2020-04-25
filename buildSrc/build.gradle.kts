@@ -14,3 +14,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx.dom:$kotlinxDomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVersion")
 }
+
+gradlePlugin {
+    plugins {
+        register("MiniPaper") {
+            id = "minipaper"
+            implementationClass = "MiniPaper"
+        }
+    }
+}
