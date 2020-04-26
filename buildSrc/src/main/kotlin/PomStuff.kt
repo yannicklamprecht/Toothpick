@@ -70,6 +70,7 @@ fun RepositoryHandler.loadRepositories(pomFile: File, project: Project) {
         val url = repositoryElem.search("url").firstOrNull()?.textContent ?: return@forEach
         maven(url)
     }
+    mavenLocal()
 }
 
 private fun String.applyReplacements(replacements: Map<String, String>): String {
