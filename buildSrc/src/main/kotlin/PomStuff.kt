@@ -43,7 +43,7 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, add
         }
 
         when (scope) {
-            "compile", null -> add("implementation", dependencyString)
+            "compile", null -> add("api", dependencyString)
             "provided" -> {
                 add("compileOnly", dependencyString)
                 add("testImplementation", dependencyString) // TODO: Bukkit quirk? or Maven scope mapping? No clue
