@@ -1,0 +1,2 @@
+CL: net/minecraft/server/Advancement my/net/minecraft/server/Advancement
+MD: net/minecraft/server/Advancement/c ()Lnet/minecraft/server/AdvancementDisplay; net/minecraft/server/Advancement/testMethod ()Lnet/minecraft/server/AdvancementDisplay;
