@@ -8,9 +8,9 @@ import org.gradle.api.Task
 import org.gradle.api.logging.Logger
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
+import stuff.taskGroupPrivate
 import java.io.File
 import java.time.LocalDateTime
-import stuff.taskGroupPrivate
 
 fun applyPatches(project: Project): Task {
     val date = LocalDateTime.now().toString()
@@ -70,8 +70,24 @@ fun applyPatches(project: Project): Task {
         group = taskGroupPrivate
         dependsOn(spigot)
         doLast {
-            // ./scripts/importmcdev.sh "$basedir" || exit 1
+            // find needed files
+            val patchDir = File(basedir, "Spigot-Server-Patches")
+            val files = hashSetOf<String>()
+            patchDir.listFiles()?.forEach {
+                val content = it.readLines()
+                content.forEach {
+                    if (it.startsWith("+++ b/src/main/java/net/minecraft/server/")) {
+                        files.add(it.substringAfter("/server/").substringBefore(".java"))
+                    }
+                }
+            }
 
+            // import
+            files.forEach {
+                import(it, logger)
+            }
+
+            // libs
             importLibrary("com.mojang", "authlib", "com/mojang/authlib", "yggdrasil/YggdrasilGameProfileRepository.java")
             importLibrary("com.mojang", "datafixerupper", "com/mojang/datafixers/util", "Either.java")
         }
@@ -146,19 +162,21 @@ private fun applyPatch(what: File, target: File, branch: String, logger: Logger)
     }
 }
 
-private fun import() {
-    //export importedmcdev="$importedmcdev $1"
-    //    file="${1}.java"
-    //    target="$workdir/Spigot/Spigot-Server/src/main/java/$nms/$file"
-    //    base="$decompiledir/$nms/$file"
-    //
-    //    if [[ ! -f "$target" ]]; then
-    //        export MODLOG="$MODLOG  Imported $file from mc-dev\n";
-    //        #echo "Copying $base to $target"
-    //        cp "$base" "$target" || exit 1
-    //    else
-    //        echo "UN-NEEDED IMPORT: $file"
-    //    fi
+private fun import(name: String, logger: Logger) {
+    val file = "$name.java"
+    val target = File(spigotDir).resolve("Spigot-Server/src/main/java/net/minecraft/server/$file")
+    val base = File(decompiledir).resolve("spigot/net/minecraft/server/$file")
+
+    if (!base.exists()) {
+        logger.warn("ERROR!!! Missing NMS $name")
+        return
+    }
+
+    if (!target.exists()) {
+        base.copyTo(target)
+    } else {
+        logger.info("UN-NEEDED IMPORT: $file")
+    }
 }
 
 private fun importLibrary(group: String, lib: String, prefix: String, vararg files: String) {
@@ -168,7 +186,7 @@ private fun importLibrary(group: String, lib: String, prefix: String, vararg fil
         val targetDir = target.parentFile
         targetDir.mkdirs()
         val base = File(workdir).resolve("Minecraft/$minecraftversion/libraries/$group/$lib/$file")
-        if(!base.exists()) {
+        if (!base.exists()) {
             throw GradleException("Missing $base")
         }
         base.copyTo(target)
