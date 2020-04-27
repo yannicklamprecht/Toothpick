@@ -5,8 +5,9 @@ import org.gradle.api.Task
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
 import stuff.taskGroupPrivate
-import java.lang.StringBuilder
 import java.net.URL
+import java.util.function.BiConsumer
+import java.util.function.Function
 
 fun srg(project: Project): Task {
     val srg2: Task by project.tasks.creating {
@@ -16,46 +17,17 @@ fun srg(project: Project): Task {
             val spigotMappings = readSpigot(project)
             val merged = hashMapOf<String, ClassInfo>() // obfname, info
 
+            // move mojang mappings into  merged
             mojangMappings.forEach { classInfo ->
-                // search for info in merged
-                val info = merged.computeIfAbsent(classInfo.obfName) {
-                    ClassInfo("", classInfo.mojangName, classInfo.obfName)
-                }
-
-                // complete info
-                if (info.mojangName == "") {
-                    info.mojangName = classInfo.mojangName
-                }
-
-                // iterate fields
-                classInfo.fields.forEach {
-                    // TODO fields
-                }
-
-                // iterate methods
-                // TODO methods
+                fix(classInfo, merged, Function { it.mojangName }, BiConsumer { i, n -> i.mojangName = n }, true)
             }
 
+            // move spigot mappings into merged
             spigotMappings.forEach { classInfo ->
-                // search for info in merged
-                val info = merged.computeIfAbsent(classInfo.obfName) {
-                    ClassInfo(classInfo.spigotName, "", classInfo.obfName)
-                }
-
-                // complete info
-                if (info.spigotName == "") {
-                    info.spigotName = classInfo.spigotName
-                }
-
-                // iterate fields
-                classInfo.fields.forEach {
-                    // TODO fields
-                }
-
-                // iterate methods
-                // TODO methods
+                fix(classInfo, merged, Function { it.spigotName }, BiConsumer { i, n -> i.spigotName = n }, false)
             }
 
+            // fix missing names by writing obf names
             merged.forEach { (_, classInfo) ->
                 // fix missing class name
                 if (classInfo.mojangName == "") {
@@ -64,7 +36,7 @@ fun srg(project: Project): Task {
                 if (classInfo.spigotName == "") {
                     classInfo.spigotName = classInfo.obfName
                 }
-                // fix missing method names
+                // fix missing field names
                 classInfo.fields.forEach { fieldInfo ->
                     if (fieldInfo.mojangName == "") {
                         fieldInfo.mojangName = fieldInfo.obfName
@@ -73,7 +45,7 @@ fun srg(project: Project): Task {
                         fieldInfo.spigotName = fieldInfo.obfName
                     }
                 }
-                // fix missing field names
+                // fix missing method names
                 classInfo.methods.forEach { methodInfo ->
                     if (methodInfo.mojangName == "") {
                         methodInfo.mojangName = methodInfo.obfName
@@ -87,18 +59,83 @@ fun srg(project: Project): Task {
             val cl = merged.map { (_, info) ->
                 val result = StringBuilder()
                 result.append("CL: ").append(info.spigotName).append(" ").append(info.mojangName).append("\n")
-                info.fields.forEach {
-                    // TODO fields
+                info.fields.forEach { field ->
+                    result.append("FD: ").append(info.spigotName).append("/").append(field.spigotName).append(" ").append(info.mojangName).append("/").append(field.mojangName).append("\n")
                 }
-                info.methods.forEach {
-                    // TODO methods
+                info.methods.forEach { method ->
+                    // TODO params
+                    // MD: net/minecraft/server/Advancement/c ()Lnet/minecraft/server/AdvancementDisplay; net/minecraft/server/Advancement/testMethod
+//                    result.append("MD: ").append(info.spigotName).append("/").append(method.spigotName).append(" ").append(method.params).append(" ").append(info.mojangName).append("/").append(method.mojangName).append("\n")
                 }
                 result.toString()
-            }.sorted()
+            }
             project.projectDir.resolve("work/spigotToMojang.srg").writeText(cl.joinToString(""))
         }
     }
     return srg2
+}
+
+private fun fix(classInfo: ClassInfo, merged: HashMap<String, ClassInfo>, nameExtractor: Function<Info, String>, nameConsumer: BiConsumer<Info, String>, mojang: Boolean) {
+    // search for info in merged
+    val info = merged.computeIfAbsent(classInfo.obfName) {
+        if (mojang) {
+            ClassInfo("", classInfo.mojangName, classInfo.obfName)
+        } else {
+            ClassInfo(classInfo.spigotName, "", classInfo.obfName)
+        }
+    }
+
+    // complete info
+    if (nameExtractor.apply(info) == "") {
+        nameConsumer.accept(info, nameExtractor.apply(classInfo))
+    }
+
+    // iterate fields
+    classInfo.fields.forEach { newInfo ->
+        // try to found existing field, apply name
+        var found = false
+        info.fields.forEach { oldInfo ->
+            if (oldInfo.obfName == newInfo.obfName) {
+                if (nameExtractor.apply(oldInfo) == "") {
+                    nameConsumer.accept(oldInfo, nameExtractor.apply(newInfo))
+                    found = true
+                }
+            }
+        }
+
+        // if not found, create new field
+        if (!found) {
+            if (mojang) {
+                info.fields.add(FieldInfo("", newInfo.mojangName, newInfo.obfName))
+            } else {
+                info.fields.add(FieldInfo(newInfo.spigotName, "", newInfo.obfName))
+            }
+        }
+    }
+
+    // iterate methods
+    classInfo.methods.forEach { newInfo ->
+        // try to found existing field, apply name
+        var found = false
+        info.methods.forEach { oldInfo ->
+            // todo compare args too
+            if (oldInfo.obfName == newInfo.obfName) {
+                if (nameExtractor.apply(oldInfo) == "") {
+                    nameConsumer.accept(oldInfo, nameExtractor.apply(newInfo))
+                    found = true
+                }
+            }
+        }
+
+        // if not found, create new method
+        if (!found) {
+            if (mojang) {
+                info.methods.add(MethodInfo("", newInfo.mojangName, newInfo.obfName, newInfo.returnType, newInfo.params))
+            } else {
+                info.methods.add(MethodInfo(newInfo.spigotName, "", newInfo.obfName, newInfo.returnType, newInfo.params))
+            }
+        }
+    }
 }
 
 fun readMojang(project: Project): MutableCollection<ClassInfo> {
@@ -129,18 +166,18 @@ fun readMojang(project: Project): MutableCollection<ClassInfo> {
                     return@forEach
                 }
                 val split = line.split(" ");
-                val returnType = split[0].substringAfterLast(":")
-                val orig = split[1].substringBefore("(")
-                val params = split[1].substringAfter("(").substringBefore(")")
-                val obf = split[3]
+                val returnType = split[4+0].substringAfterLast(":")
+                val orig = split[4+1].substringBefore("(")
+                val params = split[4+1].substringAfter("(").substringBefore(")")
+                val obf = split[4+3]
 
                 currentClass?.methods?.add(MethodInfo("", orig, obf, returnType, params))
             }
             // field
             else {
                 val split = line.split(" ")
-                val mojangName = split[1]
-                val obf = split[3]
+                val mojangName = split[4 + 1]
+                val obf = split[4 + 3]
                 currentClass?.fields?.add(FieldInfo("", mojangName, obf))
             }
         } catch (ex: Exception) {
@@ -170,6 +207,7 @@ fun readSpigot(project: Project): MutableCollection<ClassInfo> {
         }
     }
 
+    // special case
     classes["net/minecraft/server/MinecraftServer"] = ClassInfo("net/minecraft/server/MinecraftServer", "net/minecraft/server/MinecraftServer", "net/minecraft/server/MinecraftServer")
 
     val memberFile = project.projectDir.resolve("Paper/work/BuildData/mappings/bukkit-1.15.2-members.csrg").readLines()
@@ -206,24 +244,24 @@ fun readSpigot(project: Project): MutableCollection<ClassInfo> {
     return classes.values
 }
 
-data class ClassInfo(
-        var spigotName: String,
-        var mojangName: String,
-        val obfName: String,
-        val fields: ArrayList<FieldInfo> = arrayListOf(),
-        val methods: ArrayList<MethodInfo> = arrayListOf()
-)
-
-data class FieldInfo(
+open class Info(
         var spigotName: String,
         var mojangName: String,
         val obfName: String
 )
 
-data class MethodInfo(
-        var spigotName: String,
-        var mojangName: String,
-        val obfName: String,
+class ClassInfo(
+        spigotName: String, mojangName: String, obfName: String,
+        val fields: ArrayList<FieldInfo> = arrayListOf(),
+        val methods: ArrayList<MethodInfo> = arrayListOf()
+) : Info(spigotName, mojangName, obfName)
+
+class FieldInfo(spigotName: String, mojangName: String, obfName: String
+
+) : Info(spigotName, mojangName, obfName)
+
+class MethodInfo(
+        spigotName: String, mojangName: String, obfName: String,
         val returnType: String,
         val params: String
-)
+) : Info(spigotName, mojangName, obfName)
