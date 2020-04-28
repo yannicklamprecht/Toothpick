@@ -37,8 +37,8 @@ fun remap2(project: Project): Task {
     val mapStuff: Task by project.tasks.creating {
         group = taskGroupPrivate
         doLast {
-            cmd("java", "-jar", "srg2source.jar", "--apply", "--in", "../MiniPaper-Server/src/main/java", "--out", "test", "--map", "spigotToMojang.srg", "--range", "test_ret.txt",
-                    directory = File(project.rootProject.projectDir, "work"), printToStdout = false)
+            cmd("java", "-jar", "srg2source.jar", "--apply", "--in", "../MiniPaper-Server/src/main/java", "--out", "test", "--map", "spigotToMojang.srg", "--range", "test_ret.txt", "--annotate", "true",  "--keepImports", "false",
+                    directory = File(project.rootProject.projectDir, "work"), printToStdout = true)
         }
     }
 

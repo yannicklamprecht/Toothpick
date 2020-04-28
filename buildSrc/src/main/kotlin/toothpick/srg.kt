@@ -34,7 +34,11 @@ fun srg(project: Project): Task {
                     classInfo.mojangName = classInfo.obfName
                 }
                 if (classInfo.spigotName == "") {
-                    classInfo.spigotName = classInfo.obfName
+                    if(classInfo.obfName.contains("$") && merged.containsKey(classInfo.obfName.substringBefore("$"))) {
+                        classInfo.spigotName = merged[classInfo.obfName.substringBefore("$")]!!.spigotName + "$" + classInfo.obfName.substringAfter("$")
+                    } else {
+                        classInfo.spigotName = "net/minecraft/server/" + classInfo.obfName
+                    }
                 }
                 // fix missing field names
                 classInfo.fields.forEach { fieldInfo ->
@@ -159,6 +163,9 @@ fun readMojang(project: Project): MutableCollection<ClassInfo> {
                 val orig = line.substring(0, middle).replace(".", "/")
                 val obf = line.substring(middle + 4, line.length - 1).replace(".", "/")
                 currentClass = ClassInfo("", orig, obf)
+                if(orig.contains("$")) {
+                    println("found inner class $orig")
+                }
             }
             // method
             else if (line.contains("(")) {
