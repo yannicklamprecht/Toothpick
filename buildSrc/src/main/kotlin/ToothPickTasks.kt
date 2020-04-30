@@ -8,9 +8,7 @@ import paper.init
 import paper.remap
 import stuff.taskGroupPrivate
 import stuff.taskGroupPublic
-import toothpick.remap2
-import toothpick.remap3
-import toothpick.srg
+import toothpick.initRemappingTasks
 import java.io.File
 
 fun Project.initToothPickTasks() = run {
@@ -121,17 +119,5 @@ fun Project.initToothPickTasks() = run {
     }
     cleanUp.name
 
-    val testStuff: Task by tasks.creating {
-        group = taskGroupPublic
-        dependsOn(remap2(project))
-    }
-    testStuff.name
-
-    val srg: Task by tasks.creating {
-        group = taskGroupPublic
-        dependsOn(srg(project))
-    }
-    srg.name
-
-    remap3(project).name
+    initRemappingTasks(project).name
 }
