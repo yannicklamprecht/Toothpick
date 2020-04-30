@@ -27,6 +27,7 @@ fun srg(project: Project): Task {
                 fix(classInfo, merged, Function { it.spigotName }, BiConsumer { i, n -> i.spigotName = n }, false)
             }
 
+            val reCheckNeeded = hashSetOf<ClassInfo>()
             // fix missing names by writing obf names
             merged.forEach { (_, classInfo) ->
                 // fix missing class name
@@ -34,8 +35,13 @@ fun srg(project: Project): Task {
                     classInfo.mojangName = classInfo.obfName
                 }
                 if (classInfo.spigotName == "") {
-                    if(classInfo.obfName.contains("$") && merged.containsKey(classInfo.obfName.substringBefore("$"))) {
-                        classInfo.spigotName = merged[classInfo.obfName.substringBefore("$")]!!.spigotName + "$" + classInfo.obfName.substringAfter("$")
+                    if (classInfo.obfName.contains("$") && merged.containsKey(classInfo.obfName.substringBefore("$"))) {
+                        if (merged[classInfo.obfName.substringBefore("$")]!!.spigotName == "") {
+                            // if we didnt find the parent of the given subclass yet so we need to recheck that later
+                            reCheckNeeded.add(classInfo)
+                        } else {
+                            classInfo.spigotName = merged[classInfo.obfName.substringBefore("$")]!!.spigotName + "$" + classInfo.obfName.substringAfter("$")
+                        }
                     } else {
                         classInfo.spigotName = "net/minecraft/server/" + classInfo.obfName
                     }
@@ -60,16 +66,24 @@ fun srg(project: Project): Task {
                 }
             }
 
+            // if we didnt find the parent of the given subclass before so we need to recheck that now
+            reCheckNeeded.forEach { classInfo ->
+                if (classInfo.spigotName == "" && classInfo.obfName.contains("$") && merged.containsKey(classInfo.obfName.substringBefore("$"))) {
+                    classInfo.spigotName = merged[classInfo.obfName.substringBefore("$")]!!.spigotName + "$" + classInfo.obfName.substringAfter("$")
+                }
+            }
+
+
             val cl = merged.map { (_, info) ->
                 val result = StringBuilder()
                 result.append("CL: ").append(info.spigotName).append(" ").append(info.mojangName).append("\n")
                 info.fields.forEach { field ->
-                    result.append("FD: ").append(info.spigotName).append("/").append(field.spigotName).append(" ").append(info.mojangName).append("/").append(field.mojangName).append("\n")
+//                    result.append("FD: ").append(info.spigotName).append("/").append(field.spigotName).append(" ").append(info.mojangName).append("/").append(field.mojangName).append("\n")
                 }
                 info.methods.forEach { method ->
                     // TODO params
                     // MD: net/minecraft/server/Advancement/c ()Lnet/minecraft/server/AdvancementDisplay; net/minecraft/server/Advancement/testMethod
-//                    result.append("MD: ").append(info.spigotName).append("/").append(method.spigotName).append(" ").append(method.params).append(" ").append(info.mojangName).append("/").append(method.mojangName).append("\n")
+//                    result.append("MD: ").append(info.spigotName).append("/").append(method.spigotName).append(" ").append(method.params).append(" ").append(info.mojangName).append("/").append(method.mojangName).append(" ").append(method.params).append(" ").append("\n")
                 }
                 result.toString()
             }
@@ -124,9 +138,13 @@ private fun fix(classInfo: ClassInfo, merged: HashMap<String, ClassInfo>, nameEx
         info.methods.forEach { oldInfo ->
             // todo compare args too
             if (oldInfo.obfName == newInfo.obfName) {
-                if (nameExtractor.apply(oldInfo) == "") {
-                    nameConsumer.accept(oldInfo, nameExtractor.apply(newInfo))
-                    found = true
+                println("${classInfo.mojangName}:+ compare $oldInfo to $newInfo")
+                if (oldInfo.params == newInfo.params) {
+                    println("Found match!")
+                    if (nameExtractor.apply(oldInfo) == "") {
+                        nameConsumer.accept(oldInfo, nameExtractor.apply(newInfo))
+                        found = true
+                    }
                 }
             }
         }
@@ -163,7 +181,7 @@ fun readMojang(project: Project): MutableCollection<ClassInfo> {
                 val orig = line.substring(0, middle).replace(".", "/")
                 val obf = line.substring(middle + 4, line.length - 1).replace(".", "/")
                 currentClass = ClassInfo("", orig, obf)
-                if(orig.contains("$")) {
+                if (orig.contains("$")) {
                     println("found inner class $orig")
                 }
             }
@@ -173,10 +191,10 @@ fun readMojang(project: Project): MutableCollection<ClassInfo> {
                     return@forEach
                 }
                 val split = line.split(" ");
-                val returnType = split[4+0].substringAfterLast(":")
-                val orig = split[4+1].substringBefore("(")
-                val params = split[4+1].substringAfter("(").substringBefore(")")
-                val obf = split[4+3]
+                val returnType = split[4 + 0].substringAfterLast(":")
+                val orig = split[4 + 1].substringBefore("(")
+                val params = split[4 + 1].substringAfter("(").substringBefore(")")
+                val obf = split[4 + 3]
 
                 currentClass?.methods?.add(MethodInfo("", orig, obf, returnType, params))
             }
@@ -255,20 +273,36 @@ open class Info(
         var spigotName: String,
         var mojangName: String,
         val obfName: String
-)
+) {
+    override fun toString(): String {
+        return "Info(spigotName='$spigotName', mojangName='$mojangName', obfName='$obfName')"
+    }
+}
 
 class ClassInfo(
         spigotName: String, mojangName: String, obfName: String,
         val fields: ArrayList<FieldInfo> = arrayListOf(),
         val methods: ArrayList<MethodInfo> = arrayListOf()
-) : Info(spigotName, mojangName, obfName)
+) : Info(spigotName, mojangName, obfName) {
+    override fun toString(): String {
+        return "ClassInfo(fields=$fields, methods=$methods) ${super.toString()}"
+    }
+}
 
 class FieldInfo(spigotName: String, mojangName: String, obfName: String
 
-) : Info(spigotName, mojangName, obfName)
+) : Info(spigotName, mojangName, obfName) {
+    override fun toString(): String {
+        return "FieldInfo() ${super.toString()}"
+    }
+}
 
 class MethodInfo(
         spigotName: String, mojangName: String, obfName: String,
         val returnType: String,
         val params: String
-) : Info(spigotName, mojangName, obfName)
+) : Info(spigotName, mojangName, obfName) {
+    override fun toString(): String {
+        return "MethodInfo(returnType='$returnType', params='$params') ${super.toString()}"
+    }
+}

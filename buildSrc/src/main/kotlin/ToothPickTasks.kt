@@ -9,6 +9,7 @@ import paper.remap
 import stuff.taskGroupPrivate
 import stuff.taskGroupPublic
 import toothpick.remap2
+import toothpick.remap3
 import toothpick.srg
 import java.io.File
 
@@ -130,5 +131,7 @@ fun Project.initToothPickTasks() = run {
         group = taskGroupPublic
         dependsOn(srg(project))
     }
-    testStuff.name
+    srg.name
+
+    remap3(project).name
 }
