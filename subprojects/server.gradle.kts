@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     loadDependencies(File(project.projectDir, "pom.xml"), project, true)
-    compileOnly(files("../work/1.15.2-mojang-mapped.jar"))
+    compileOnly(files("../work/1.15.2-mojang-mapped-copied.jar"))
 }
 
 // ignore server tests as they infinitely loop right now

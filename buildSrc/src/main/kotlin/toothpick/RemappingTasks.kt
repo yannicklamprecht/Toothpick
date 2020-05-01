@@ -50,6 +50,10 @@ fun initRemappingTasks(project: Project): Task {
                     klassWith.deobfuscatedName = klass.obfuscatedName
                 }
             }
+            classes.topLevelClassMappings.forEach { klass ->
+                val klassWith = spigotToNms.getOrCreateTopLevelClassMapping(klass.deobfuscatedName)
+                klassWith.deobfuscatedName = klass.obfuscatedName;
+            }
 
             val nmsToSpigot = spigotToNms.reverse()
 
@@ -92,7 +96,7 @@ fun initRemappingTasks(project: Project): Task {
             mercury.sourceCompatibility = "1.8"
             mercury.encoding = StandardCharsets.UTF_8
 
-            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2.jar"))
+//            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2.jar"))
             mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"))
             mercury.classPath.add(projectDir.resolve("work/Paper/Paper-API/src/main/java"))
 
@@ -127,6 +131,7 @@ fun initRemappingTasks(project: Project): Task {
                 JarEntryRemappingTransformer(remapper)
             }
             atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
+            project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(project.projectDir.resolve("work/1.15.2-mojang-mapped-copied.jar"))
         }
     }
 

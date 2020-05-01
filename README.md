@@ -13,7 +13,7 @@ That means, that almost every single public plugin breaks (every plugin that acc
 
 * Long2ObjectMap patch shit
 * figure out why not all classes end up remapped
-* copy missing files to server folder (pom.xml for example)
+* copy missing files to server folder (pom.xml for example) (actually, it needs to be a git repo, upps, copy everything, delete src)
 * make it compile, duh
 
 ## Building
