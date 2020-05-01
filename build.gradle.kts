@@ -15,14 +15,14 @@ toothpick {
     subProjects = mapOf(
             // API project
             "$forkName-API" to listOf(
-                    File(rootProject.projectDir, "${upstreamName}/${upstreamName}-API"),
+                    File(rootProject.projectDir, "work/${upstreamName}/${upstreamName}-API"),
                     project(":${forkName.toLowerCase()}-api").projectDir,
                     File(rootProject.projectDir, "patches/api")
             ),
 
             // Server project
             "$forkName-Server" to listOf(
-                    File(rootProject.projectDir, "${upstreamName}/${upstreamName}-Server"),
+                    File(rootProject.projectDir, "work/${upstreamName}-Server-Remapped"),
                     project(":${forkName.toLowerCase()}-server").projectDir,
                     File(rootProject.projectDir, "patches/server")
             )

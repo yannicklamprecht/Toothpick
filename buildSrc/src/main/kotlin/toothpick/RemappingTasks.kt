@@ -1,5 +1,11 @@
 package toothpick
 
+import org.cadixdev.atlas.Atlas
+import org.cadixdev.bombe.analysis.CachingInheritanceProvider
+import org.cadixdev.bombe.analysis.ReflectionInheritanceProvider
+import org.cadixdev.bombe.jar.asm.JarEntryRemappingTransformer
+import org.cadixdev.lorenz.MappingSet
+import org.cadixdev.lorenz.asm.LorenzRemapper
 import org.cadixdev.lorenz.io.MappingFormats
 import org.cadixdev.mercury.Mercury
 import org.cadixdev.mercury.extra.BridgeMethodRewriter
@@ -16,9 +22,13 @@ import java.nio.file.Files
 fun initRemappingTasks(project: Project): Task {
     val createMappings: Task by project.tasks.creating {
         group = taskGroupPrivate
+        onlyIf {
+            !Files.exists(project.projectDir.toPath().resolve("work/spigotToMojang.srg"))
+        }
         doLast {
-            val projectDir = project.projectDir.toPath();
-            val buildData = projectDir.resolve("Paper/work/BuildData/mappings")
+            val projectDir = project.projectDir.toPath()
+
+            val buildData = projectDir.resolve("work/Paper/work/BuildData/mappings")
 
             project.logger.info("Reading...")
             val classes = MappingFormats.CSRG.read(buildData.resolve("bukkit-1.15.2-cl.csrg"))
@@ -62,15 +72,16 @@ fun initRemappingTasks(project: Project): Task {
             project.logger.info("Done!")
         }
     }
-    
+
     val applyMercury: Task by project.tasks.creating {
         group = taskGroupPrivate
+        dependsOn(createMappings)
         doLast {
             val projectDir = project.projectDir.toPath()
-            val outputDir = projectDir.resolve("Minipaper-Server-remapped/src/main/java")
+            val outputDir = projectDir.resolve("Minipaper-Server/src/main/java")
 
             if (Files.isDirectory(outputDir)) {
-                Files.delete(outputDir)
+                outputDir.toFile().deleteRecursively()
             }
             Files.createDirectory(outputDir)
 
@@ -81,9 +92,9 @@ fun initRemappingTasks(project: Project): Task {
             mercury.sourceCompatibility = "1.8"
             mercury.encoding = StandardCharsets.UTF_8
 
-            mercury.classPath.add(projectDir.resolve("Paper/work/Minecraft/1.15.2/1.15.2.jar"))
-            mercury.classPath.add(projectDir.resolve("Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"))
-            mercury.classPath.add(projectDir.resolve("Paper/Paper-API/src/main/java"))
+            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2.jar"))
+            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"))
+            mercury.classPath.add(projectDir.resolve("work/Paper/Paper-API/src/main/java"))
 
             project.subprojects.forEach { p ->
                 p.configurations.forEach { config ->
@@ -98,9 +109,26 @@ fun initRemappingTasks(project: Project): Task {
             mercury.processors.add(MercuryRemapper.create(mappings))
             mercury.processors.add(BridgeMethodRewriter.create())
 
-            mercury.rewrite(projectDir.resolve("MiniPaper-Server/src/main/java"), outputDir)
+            mercury.rewrite(projectDir.resolve("work/Paper/Paper-Server/src/main/java"), outputDir)
         }
     }
 
-    return applyMercury
+    val applyAtlas: Task by project.tasks.creating {
+        group = taskGroupPrivate
+        dependsOn(applyMercury)
+        doLast {
+            val projectDir = project.projectDir.toPath()
+            val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
+            val atlas = Atlas()
+            atlas.install {
+                val inheritanceProvider = CachingInheritanceProvider(ReflectionInheritanceProvider(javaClass.classLoader))
+                val remapper = LorenzRemapper(mappings, inheritanceProvider)
+
+                JarEntryRemappingTransformer(remapper)
+            }
+            atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
+        }
+    }
+
+    return applyAtlas
 }

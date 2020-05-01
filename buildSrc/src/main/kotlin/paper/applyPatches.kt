@@ -10,6 +10,7 @@ import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
 import stuff.taskGroupPrivate
 import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 
 fun applyPatches(project: Project): Task {
@@ -52,7 +53,7 @@ fun applyPatches(project: Project): Task {
             }
 
             ensureSuccess(runGitCmd("add", "src", directory = cb))
-            ensureSuccess(runGitCmd("commit", "-m", "Craftbukkit $ $date", "--author=\"CraftBukkit <auto@mated.null>\"", directory = cb))
+            ensureSuccess(runGitCmd("commit", "-m", "Craftbukkit $ $date", "--author=auto@mated.null", directory = cb))
             ensureSuccess(runGitCmd("checkout", "-f", "HEAD~2", directory = cb))
         }
     }
@@ -150,13 +151,27 @@ private fun applyPatch(what: File, target: File, branch: String, logger: Logger)
             ?.filter { it.name.endsWith(".patch") }
             ?.takeIf { it.isNotEmpty() } ?: return
     val gitCommand = arrayListOf("git", "-c", "commit.gpgsign=false", "am", "--3way", "--ignore-whitespace")
-    gitCommand.addAll(patches.map { it.absolutePath })
+    val newGitCommand = ArrayList(gitCommand)
+    newGitCommand.addAll(patches.map { it.absolutePath })
 
-    val (exit, _) = cmd(*gitCommand.toTypedArray(), directory = target, printToStdout = true)
-    if (exit != 0) {
-        statusFile.writeText("1")
-        throw GradleException("Something did not apply cleanly to ${target.name}!")
-    } else {
+    try {
+        val (exit, _) = cmd(*newGitCommand.toTypedArray(), directory = target, printToStdout = true)
+        if (exit != 0) {
+            statusFile.writeText("1")
+            throw GradleException("Something did not apply cleanly to ${target.name}!")
+        } else {
+            statusFile.delete()
+            logger.lifecycle("  Patches applied cleanly to ${target.name}")
+        }
+    } catch (ex: IOException) {
+        // windows has a limit on command length, so we need to patch every patch on its own, woo
+        patches.forEach {patch ->
+            val (exit, _) = cmd(*gitCommand.toTypedArray(), patch.absolutePath, directory = target, printToStdout = true)
+            if (exit != 0) {
+                statusFile.writeText("1")
+                throw GradleException("Something did not apply cleanly to ${target.name}!")
+            }
+        }
         statusFile.delete()
         logger.lifecycle("  Patches applied cleanly to ${target.name}")
     }

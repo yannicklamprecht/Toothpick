@@ -24,6 +24,7 @@ fun cmd(vararg args: String, directory: File, printToStdout: Boolean = false): P
 fun ensureSuccess(cmd: Pair<Int, String?>): String? {
     val (exit, output) = cmd
     if (exit != 0) {
+        println(output)
         throw IllegalStateException("Failed to run command, exit code is $exit")
     }
     return output

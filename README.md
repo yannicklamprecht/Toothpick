@@ -9,9 +9,23 @@ This makes it much easier to work on stuff.
 An intended effect of this is, that all plugins build against this project, will also be able (or be forced, depends on your view, lol) to use mojang mappings.  
 That means, that almost every single public plugin breaks (every plugin that accesses nms), but makes it makes it much easier to write plugins that use internals.
 
+## TODO
+
+* Long2ObjectMap patch shit
+* figure out why not all classes end up remapped
+* copy missing files to server folder (pom.xml for example)
+* make it compile, duh
+
 ## Building
 
 Figure it out yourself or GTFO (for now, pls come back later when this is usable :))
+
+Tasks:
+* setupUpstream -> does paper stuff
+* mojangMappings -> does the special juice
+* applyPatches -> applies toothpick patches ontop of mojang mappings
+* rebuildPatches -> rebuilds patches, duh
+* cleanUp -> deletes everything in the work dirs and you will have to run ^ again
 
 ## License
 

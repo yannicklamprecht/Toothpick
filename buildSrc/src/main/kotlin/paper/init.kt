@@ -33,7 +33,7 @@ var libDownloads = hashMapOf<String, String>()
 
 @UnstableDefault
 fun init(project: Project, upstreamName: String) {
-    basedir = "${project.rootDir.absolutePath}/${upstreamName}"
+    basedir = "${project.rootDir.absolutePath}/work/${upstreamName}"
     workdir = "$basedir/work"
     val info = Json.parse(BuildInfo.serializer(), File("$workdir/BuildData/info.json").readText())
 

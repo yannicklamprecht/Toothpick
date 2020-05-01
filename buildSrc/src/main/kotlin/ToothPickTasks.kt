@@ -15,7 +15,7 @@ fun Project.initToothPickTasks() = run {
     val initGitSubmodules: Task by project.tasks.creating {
         group = taskGroupPublic
         onlyIf {
-            !File("${toothPick.upstreamName}/.git").exists() || !File("${toothPick.upstreamName}/work/BuldData.git").exists()
+            !File("work/${toothPick.upstreamName}/.git").exists() || !File("work/${toothPick.upstreamName}/work/BuldData.git").exists()
         }
         doLast {
             val (exit, _) = cmd("git", "submodule", "update", "--init", "--recursive", directory = rootDir, printToStdout = true)
@@ -104,6 +104,11 @@ fun Project.initToothPickTasks() = run {
     }
     rebuildPatches.name
 
+    val mojangMappings: Task by tasks.creating {
+        group = taskGroupPublic
+        dependsOn(initRemappingTasks(project))
+    }
+
     val cleanUp: Task by tasks.creating {
         group = taskGroupPublic
         doLast {
@@ -115,9 +120,12 @@ fun Project.initToothPickTasks() = run {
             val upstreamDir = File(rootProject.projectDir, toothPick.upstreamName)
             logger.lifecycle("Deleating $upstreamDir...")
             upstreamDir.deleteRecursively()
+
+            val workDir = File(rootProject.projectDir, "work")
+            logger.lifecycle("Deleating $workDir...")
+            upstreamDir.deleteRecursively()
         }
     }
     cleanUp.name
 
-    initRemappingTasks(project).name
 }

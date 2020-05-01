@@ -40,12 +40,14 @@ fun DependencyHandlerScope.loadDependencies(pomFile: File, project: Project, add
                 add("implementation", project(":${project.toothPick.forkName.toLowerCase()}-api"))
             }
             return@forEach
+        } else if(artifactId == "minecraft-server") {
+            return@forEach
         }
 
         when (scope) {
             "compile", null -> add("api", dependencyString)
             "provided" -> {
-                add("compileOnly", dependencyString)
+                add("api", dependencyString)
                 add("testImplementation", dependencyString) // TODO: Bukkit quirk? or Maven scope mapping? No clue
             }
             "runtime" -> add("runtimeOnly", dependencyString)
