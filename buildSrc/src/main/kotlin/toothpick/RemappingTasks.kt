@@ -124,11 +124,8 @@ fun initRemappingTasks(project: Project): Task {
             val projectDir = project.projectDir.toPath()
             val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
             val atlas = Atlas()
-            atlas.install {
-                val inheritanceProvider = CachingInheritanceProvider(ReflectionInheritanceProvider(javaClass.classLoader))
-                val remapper = LorenzRemapper(mappings, inheritanceProvider)
-
-                JarEntryRemappingTransformer(remapper)
+            atlas.install { ctx ->
+                JarEntryRemappingTransformer(LorenzRemapper(mappings, ctx.inheritanceProvider()))
             }
             atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
             project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(project.projectDir.resolve("work/1.15.2-mojang-mapped-copied.jar"))
