@@ -128,6 +128,7 @@ fun initRemappingTasks(project: Project): Task {
                 JarEntryRemappingTransformer(LorenzRemapper(mappings, ctx.inheritanceProvider()))
             }
             atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
+            atlas.close()
             project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(project.projectDir.resolve("work/1.15.2-mojang-mapped-copied.jar"))
         }
     }
