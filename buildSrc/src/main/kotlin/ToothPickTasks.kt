@@ -9,6 +9,7 @@ import paper.remap
 import stuff.taskGroupPrivate
 import stuff.taskGroupPublic
 import toothpick.initRemappingTasks
+import toothpick.createPostMappingPatchesTask
 import java.io.File
 
 fun Project.initToothPickTasks() = run {
@@ -127,5 +128,7 @@ fun Project.initToothPickTasks() = run {
         }
     }
     cleanUp.name
+
+    createPostMappingPatchesTask(project)
 
 }

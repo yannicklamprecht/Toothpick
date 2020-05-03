@@ -1,5 +1,7 @@
 package toothpick
 
+import cmd
+import ensureSuccess
 import org.cadixdev.at.io.AccessTransformFormats
 import org.cadixdev.atlas.Atlas
 import org.cadixdev.bombe.jar.asm.JarEntryRemappingTransformer
@@ -13,6 +15,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
+import paper.runGitCmd
 import stuff.taskGroupPrivate
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -35,12 +38,12 @@ fun initRemappingTasks(project: Project): Task {
 
             project.logger.info("Fixing packages...")
             classes.topLevelClassMappings.forEach { klass ->
-                if(!klass.deobfuscatedName.contains("/")) {
+                if (!klass.deobfuscatedName.contains("/")) {
                     klass.deobfuscatedName = "net/minecraft/server/" + klass.deobfuscatedName
                 }
             }
             members.topLevelClassMappings.forEach { klass ->
-                if(!klass.deobfuscatedName.contains("/")) {
+                if (!klass.deobfuscatedName.contains("/")) {
                     klass.deobfuscatedName = "net/minecraft/server/" + klass.deobfuscatedName
                 }
             }
@@ -85,7 +88,16 @@ fun initRemappingTasks(project: Project): Task {
         dependsOn(createMappings)
         doLast {
             val projectDir = project.projectDir.toPath()
-            val outputDir = projectDir.resolve("Minipaper-Server/src/main/java")
+            val outputDir = projectDir.resolve("work/Paper-Server-Remapped/src/main/java")
+
+            val paper = project.projectDir.resolve("work/Paper/Paper-Server")
+            val remapped = project.projectDir.resolve("work/Paper-Server-Remapped")
+
+            if (remapped.exists()) {
+                ensureSuccess(cmd("git", "reset", "--hard", "origin/master", directory = remapped))
+            } else {
+                ensureSuccess(cmd("git", "clone", paper.absolutePath, remapped.absolutePath, directory = project.projectDir))
+            }
 
             if (Files.isDirectory(outputDir)) {
                 outputDir.toFile().deleteRecursively()
@@ -146,5 +158,59 @@ fun initRemappingTasks(project: Project): Task {
         }
     }
 
-    return applyAtlas
+    val applyPostMappingPatches by project.tasks.creating {
+        group = taskGroupPrivate
+//        dependsOn(applyAtlas)
+        doLast {
+            val patched = project.projectDir.resolve("work/Paper-Server-Remapped-Patched")
+            val input = project.projectDir.resolve("work/Paper-Server-Remapped")
+
+            runGitCmd("add", ".", "-A", directory = input)
+            runGitCmd("commit", "-m", "Mojang Mappings", directory = input)
+
+            if (patched.exists()) {
+                ensureSuccess(cmd("git", "reset", "--hard", "origin/master", directory = patched))
+            } else {
+                ensureSuccess(cmd("git", "clone", input.absolutePath, patched.absolutePath, directory = project.projectDir))
+            }
+
+            val patches = project.projectDir.resolve("patches/postmapping").listFiles()
+                    ?.filter { it.name.endsWith(".patch") }
+                    ?.takeIf { it.isNotEmpty() } ?: return@doLast
+
+            logger.lifecycle(">>> Applying patches to $name")
+            val gitCommand = arrayListOf("git", "am", "--3way")
+            gitCommand.addAll(patches.map { it.absolutePath })
+            ensureSuccess(cmd(*gitCommand.toTypedArray(), directory = patched, printToStdout = true))
+        }
+    }
+
+    return applyPostMappingPatches
+}
+
+fun createPostMappingPatchesTask(project: Project) {
+    val createPostMappingPatches by project.tasks.creating {
+        group = taskGroupPrivate
+        doLast {
+            val patched = project.projectDir.resolve("work/Paper-Server-Remapped-Patched")
+            val patchesDir = project.projectDir.resolve("patches/postmapping")
+            if (!patchesDir.exists()) {
+                patchesDir.mkdirs()
+            }
+
+            // Nuke old patches
+            patchesDir.listFiles()
+                    ?.filter { it.name.endsWith(".patch") }
+                    ?.forEach { it.delete() }
+
+            // And generate new
+            ensureSuccess(cmd("git", "format-patch",
+                    "--no-stat", "--zero-commit", "--full-index", "--no-signature", "-N",
+                    "-o", patchesDir.absolutePath, "origin/master",
+                    directory = patched,
+                    printToStdout = true
+            ))
+        }
+    }
+    createPostMappingPatches.name
 }
