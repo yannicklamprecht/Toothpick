@@ -7,9 +7,8 @@ setupSubproject("${forkName.toLowerCase()}-api") {
     buildFileName = "../subprojects/api.gradle.kts"
 }
 setupSubproject("${forkName.toLowerCase()}-server") {
-//    projectDir = File("$forkName-Server")
-    projectDir = File(rootProject.projectDir,"work/Paper-Server-Remapped-Patched")
-    buildFileName =  File(rootProject.projectDir, "subprojects/server.gradle.kts").toRelativeString(projectDir)
+    projectDir = File("$forkName-Server")
+    buildFileName = "../subprojects/server.gradle.kts"
 }
 
 inline fun setupSubproject(name: String, block: ProjectDescriptor.() -> Unit) {

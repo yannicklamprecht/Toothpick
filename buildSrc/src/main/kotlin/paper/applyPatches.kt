@@ -208,6 +208,6 @@ private fun importLibrary(group: String, lib: String, prefix: String, vararg fil
     }
 }
 
-fun runGitCmd(vararg args: String, directory: File, printToStdout: Boolean = false): Pair<Int, String?> {
+private fun runGitCmd(vararg args: String, directory: File, printToStdout: Boolean = false): Pair<Int, String?> {
     return cmd("git", "-c", "commit.gpgsign=false", *args, directory = directory, printToStdout = printToStdout)
 }
