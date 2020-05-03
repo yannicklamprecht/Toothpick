@@ -1,13 +1,12 @@
 package toothpick
 
+import org.cadixdev.at.io.AccessTransformFormats
 import org.cadixdev.atlas.Atlas
-import org.cadixdev.bombe.analysis.CachingInheritanceProvider
-import org.cadixdev.bombe.analysis.ReflectionInheritanceProvider
 import org.cadixdev.bombe.jar.asm.JarEntryRemappingTransformer
-import org.cadixdev.lorenz.MappingSet
 import org.cadixdev.lorenz.asm.LorenzRemapper
 import org.cadixdev.lorenz.io.MappingFormats
 import org.cadixdev.mercury.Mercury
+import org.cadixdev.mercury.at.AccessTransformerRewriter
 import org.cadixdev.mercury.extra.BridgeMethodRewriter
 import org.cadixdev.mercury.remapper.MercuryRemapper
 import org.gradle.api.Project
@@ -36,10 +35,14 @@ fun initRemappingTasks(project: Project): Task {
 
             project.logger.info("Fixing packages...")
             classes.topLevelClassMappings.forEach { klass ->
-                klass.deobfuscatedName = "net/minecraft/server/" + klass.deobfuscatedName
+                if(!klass.deobfuscatedName.contains("/")) {
+                    klass.deobfuscatedName = "net/minecraft/server/" + klass.deobfuscatedName
+                }
             }
             members.topLevelClassMappings.forEach { klass ->
-                klass.deobfuscatedName = "net/minecraft/server/" + klass.deobfuscatedName
+                if(!klass.deobfuscatedName.contains("/")) {
+                    klass.deobfuscatedName = "net/minecraft/server/" + klass.deobfuscatedName
+                }
             }
 
             project.logger.info("Combining...")
@@ -52,7 +55,7 @@ fun initRemappingTasks(project: Project): Task {
             }
             classes.topLevelClassMappings.forEach { klass ->
                 val klassWith = spigotToNms.getOrCreateTopLevelClassMapping(klass.deobfuscatedName)
-                klassWith.deobfuscatedName = klass.obfuscatedName;
+                klassWith.deobfuscatedName = klass.obfuscatedName
             }
 
             val nmsToSpigot = spigotToNms.reverse()
@@ -92,11 +95,12 @@ fun initRemappingTasks(project: Project): Task {
             val mercury = Mercury()
 
             val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
+            val mappings2 = MappingFormats.SRG.read(projectDir.resolve("work/toothpick.srg"))
+            val ats = AccessTransformFormats.FML.read(projectDir.resolve("work/toothpick.at"))
 
             mercury.sourceCompatibility = "1.8"
             mercury.encoding = StandardCharsets.UTF_8
 
-//            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2.jar"))
             mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"))
             mercury.classPath.add(projectDir.resolve("work/Paper/Paper-API/src/main/java"))
 
@@ -110,7 +114,9 @@ fun initRemappingTasks(project: Project): Task {
                 }
             }
 
+            mercury.processors.add(MercuryRemapper.create(mappings2))
             mercury.processors.add(MercuryRemapper.create(mappings))
+            mercury.processors.add(AccessTransformerRewriter.create(ats))
             mercury.processors.add(BridgeMethodRewriter.create())
 
             mercury.rewrite(projectDir.resolve("work/Paper/Paper-Server/src/main/java"), outputDir)
@@ -123,13 +129,20 @@ fun initRemappingTasks(project: Project): Task {
         doLast {
             val projectDir = project.projectDir.toPath()
             val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
+            val mappings2 = MappingFormats.SRG.read(projectDir.resolve("work/toothpick.srg"))
+            val ats = AccessTransformFormats.FML.read(projectDir.resolve("work/toothpick.at"))
             val atlas = Atlas()
+            atlas.install {
+                AccessTransformingJarEntryTransformer(ats)
+            }
             atlas.install { ctx ->
-                JarEntryRemappingTransformer(LorenzRemapper(mappings, ctx.inheritanceProvider()))
+                JarEntryRemappingTransformer(LorenzRemapper(mappings2, ctx.inheritanceProvider()))
+            }
+            atlas.install { ctx ->
+                DebugJarEntryRemappingTransformer(LorenzRemapper(mappings, ctx.inheritanceProvider()))
             }
             atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
             atlas.close()
-            project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(project.projectDir.resolve("work/1.15.2-mojang-mapped-copied.jar"))
         }
     }
 

@@ -1,0 +1,26 @@
+# field clashes
+FD: net/minecraft/server/PlayerConnection/server net/minecraft/server/network/ServerGamePacketListenerImpl/craftServer
+FD: net/minecraft/server/RegionFile/file net/minecraft/world/level/chunk/storage/RegionFile/craftFile
+FD: net/minecraft/server/ContainerWorkbench/player net/minecraft/world/inventory/CraftingMenu/craftplayer
+FD: net/minecraft/server/BlockState/hashCode net/minecraft/world/level/block/state/properties/AbstractProperty/hashCodeOH
+# method clashes / obf helpers
+MD: net/minecraft/server/EntityWitch/isDrinkingPotion ()Z net/minecraft/world/entity/monster/Witch/isDrinkingPotionOH ()Z
+MD: net/minecraft/server/EntityVex/getOwner ()Lnet/minecraft/server/EntityInsentient; net/minecraft/world/entity/monster/Vex/getOwnerOH ()Lnet/minecraft/world/entity/Mob;
+MD: net/minecraft/server/EntityVex/setOwner (Lnet/minecraft/server/EntityInsentient;)V net/minecraft/world/entity/monster/Vex/setOwnerOH (Lnet/minecraft/world/entity/Mob;)V
+MD: net/minecraft/server/PacketDataSerializer/readVarInt ()I net/minecraft/network/FriendlyByteBuf/readVarIntOH ()I
+MD: net/minecraft/server/PacketDataSerializer/readUUID ()Ljava/util/UUID; net/minecraft/network/FriendlyByteBuf/readUUIDOH ()Ljava/util/UUID;
+MD: net/minecraft/server/IChunkLoader/write (Lnet/minecraft/server/ChunkCoordIntPair;Lnet/minecraft/server/NBTTagCompound;)V net/minecraft/world/level/chunk/storage/ChunkStorage/writeOH (Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/nbt/CompoundTag;)V
+MD: net/minecraft/server/BiomeManager/getBiome (Lnet/minecraft/server/BlockPosition;)Lnet/minecraft/server/BiomeBase; net/minecraft/world/level/biome/BiomeManager/getBiomeOH (Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/biome/Biome;
+MD: net/minecraft/server/AxisAlignedBB/contains (DDD)Z net/minecraft/world/phys/AABB/containsOH (DDD)Z
+MD: net/minecraft/server/NetworkManager/sendPacket (Lnet/minecraft/server/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V net/minecraft/network/Connection/sendPacketOH (Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V
+MD: net/minecraft/server/ChunkCoordIntPair/asLong (II)J net/minecraft/world/level/ChunkPos/asLongOH (II)J
+MD: net/minecraft/server/ChunkCoordIntPair/asLong (Lnet/minecraft/server/BlockPosition;)J net/minecraft/world/level/ChunkPos/asLongOH (Lnet/minecraft/core/BlockPos;)J
+MD: net/minecraft/server/PacketPlayInSettings/getChatVisibility ()Lnet/minecraft/server/EnumChatVisibility; net/minecraft/network/protocol/game/ServerboundClientInformationPacket/getChatVisibilityOH ()Lnet/minecraft/world/entity/player/ChatVisiblity;
+MD: net/minecraft/server/EntityInsentient/getLootTable ()Lnet/minecraft/server/MinecraftKey; net/minecraft/world/entity/Mob/getLootTableOH ()Lnet/minecraft/resources/ResourceLocation;
+MD: net/minecraft/server/NBTTagCompound/getUUID (Ljava/lang/String;)Ljava/util/UUID; net/minecraft/nbt/CompoundTag/getUUIDOH (Ljava/lang/String;)Ljava/util/UUID;
+MD: net/minecraft/server/Entity/setUUID (Ljava/util/UUID;)V net/minecraft/world/entity/Entity/setUUIDOH (Ljava/util/UUID;)V
+MD: net/minecraft/server/EntityProjectileThrowable/getDefaultItem ()Lnet/minecraft/server/Item; net/minecraft/world/entity/projectile/ThrowableItemProjectile/getDefaultItemOH ()Lnet/minecraft/world/item/Item;
+MD: net/minecraft/server/PlayerChunk/getTickingChunk ()Lnet/minecraft/server/Chunk; net/minecraft/server/level/ChunkHolder/getTickingChunkOH ()Lnet/minecraft/world/level/chunk/LevelChunk;
+MD: net/minecraft/server/World/getBiomeManager ()Lnet/minecraft/server/BiomeManager; net/minecraft/world/level/Level/getBiomeManagerOH ()Lnet/minecraft/world/level/biome/BiomeManager;
+MD: net/minecraft/server/ControllerMoveFlying/tick ()V net/minecraft/world/entity/ai/control/FlyingMoveControl/tickOH ()V
+

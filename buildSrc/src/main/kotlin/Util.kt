@@ -11,9 +11,9 @@ fun cmd(vararg args: String, directory: File, printToStdout: Boolean = false): P
     val output = p.inputStream.bufferedReader().use {
         val lines = LinkedList<String>()
         it.lines().peek(lines::add).forEach { line ->
-            if (printToStdout) {
+//            if (printToStdout) {
                 println(line) // TODO use a logger here printToStdout=true -> lifecycle, else info (or lower)
-            }
+//            }
         }
         lines.joinToString(separator = "\n")
     }

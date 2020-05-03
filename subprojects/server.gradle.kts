@@ -14,7 +14,22 @@ repositories {
 
 dependencies {
     loadDependencies(File(project.projectDir, "pom.xml"), project, true)
-    compileOnly(files("../work/1.15.2-mojang-mapped-copied.jar"))
+
+    val projectDir = project.parent!!.projectDir
+    for (i in 0..100) {
+        val file = projectDir.resolve("work/1.15.2-mojang-mapped-copied-$i.jar")
+        if (file.exists()) {
+            if (file.delete()) {
+                project.parent!!.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(file, true)
+                compileOnly(files(file))
+                break
+            }
+        } else {
+            project.parent!!.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(file, true)
+            compileOnly(files(file))
+            break
+        }
+    }
 }
 
 // ignore server tests as they infinitely loop right now

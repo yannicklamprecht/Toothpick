@@ -35,7 +35,7 @@ fun applyPatches(project: Project): Task {
             }
 
             runGitCmd("add", "src", directory = cb)
-            runGitCmd("commit", "-m", "Minecraft $ ($date)", "--author=\"Vanilla <auto@mated.null>\"", directory = cb)
+            runGitCmd("commit", "-m", "Minecraft $ ($date)", "--author=auto@mated.null", directory = cb)
         }
     }
 

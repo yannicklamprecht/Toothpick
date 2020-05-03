@@ -1,0 +1,35 @@
+# ATS USE SPIGOT MAPPINGS!
+
+# classes
+public net.minecraft.server.ChunkProviderServer.a
+
+# fields
+public net.minecraft.server.WorldServer hasPhysicsEvent
+public net.minecraft.server.TileEntityHopper skipHopperEvents
+public net.minecraft.server.TileEntity world
+public net.minecraft.server.TileEntity position
+public net.minecraft.server.TileEntity isLoadingStructure
+public net.minecraft.server.DataWatcher registrationLocked
+public net.minecraft.server.World chunkProvider
+public net.minecraft.server.Entity isQueuedForRegister
+public net.minecraft.server.Entity addedToWorldStack
+public net.minecraft.server.Entity datawatcher
+public net.minecraft.server.Entity tracker
+public net.minecraft.server.Chunk tickingList
+public net.minecraft.server.EntityDrowned navigationWater
+public net.minecraft.server.EntityDrowned navigationLand
+public net.minecraft.server.EntityLiving drops
+public net.minecraft.server.EntityLiving forceDrops
+public net.minecraft.server.PlayerList collideRuleTeamName
+public net.minecraft.server.PacketPlayInFlying *
+public net.minecraft.server.BaseBlockPosition *
+public net.minecraft.server.World rainLevel
+public net.minecraft.server.World thunderLevel
+
+# methods
+public net.minecraft.server.PlayerInventory getComponents()Ljava/util/List;
+public net.minecraft.server.EntityHuman releaseShoulderEntities()V;
+public net.minecraft.server.Entity setYawPitch(FF)V;
+public net.minecraft.server.PlayerChunkMap addEntity(Lnet/minecraft/server/Entity;)V;
+public net.minecraft.server.Block dropExperience(Lnet/minecraft/server/World;Lnet/minecraft/server/BlockPosition;I)V
+
