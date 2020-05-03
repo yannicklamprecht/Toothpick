@@ -5,10 +5,10 @@ Subject: [PATCH] Branding changes
 
 
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 99bc8da370a8b4c1966a65a89fae81b737e20f1c..c126d29e3ce618b17cc27d74b8283a13c32eb51e 100644
+index 664e2e70936ff731a72989e716247ba3f1d49098..0ee0075d0bc3827959d67f754591a956966d49e9 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1533,7 +1533,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -1615,7 +1615,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      public String getServerModName() {

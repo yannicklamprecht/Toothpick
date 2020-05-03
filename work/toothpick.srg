@@ -23,4 +23,15 @@ MD: net/minecraft/server/EntityProjectileThrowable/getDefaultItem ()Lnet/minecra
 MD: net/minecraft/server/PlayerChunk/getTickingChunk ()Lnet/minecraft/server/Chunk; net/minecraft/server/level/ChunkHolder/getTickingChunkOH ()Lnet/minecraft/world/level/chunk/LevelChunk;
 MD: net/minecraft/server/World/getBiomeManager ()Lnet/minecraft/server/BiomeManager; net/minecraft/world/level/Level/getBiomeManagerOH ()Lnet/minecraft/world/level/biome/BiomeManager;
 MD: net/minecraft/server/ControllerMoveFlying/tick ()V net/minecraft/world/entity/ai/control/FlyingMoveControl/tickOH ()V
+MD: net/minecraft/server/World/neighborChanged (Lnet/minecraft/server/BlockPosition;Lnet/minecraft/server/Block;Lnet/minecraft/server/BlockPosition;)V net/minecraft/world/level/Level/neighborChangedOH (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;)V
+MD: net/minecraft/server/Entity/getEyePosition (F)Lnet/minecraft/server/Vec3D; net/minecraft/world/entity/Entity/getEyePositionOH (F)Lnet/minecraft/world/phys/Vec3;
+MD: net/minecraft/server/LocaleLanguage/getInstance ()Lnet/minecraft/server/LocaleLanguage; net/minecraft/locale/Language/getInstanceOH ()Lnet/minecraft/locale/Language;
+MD: net/minecraft/server/PacketHandshakingInSetProtocol/getProtocolVersion ()I net/minecraft/network/protocol/handshake/ClientIntentionPacket/getProtocolVersionOH ()I
+MD: net/minecraft/server/EntityAreaEffectCloud/getType ()Ljava/lang/String; net/minecraft/world/entity/AreaEffectCloud/getTypeOH ()Ljava/lang/String;
+MD: net/minecraft/world/entity/projectile/Arrow/getType ()Ljava/lang/String; net/minecraft/server/EntityTippedArrow/getTypeOH ()Ljava/lang/String;
+
+
+
+
+
 

@@ -25,11 +25,12 @@ public net.minecraft.server.PacketPlayInFlying *
 public net.minecraft.server.BaseBlockPosition *
 public net.minecraft.server.World rainLevel
 public net.minecraft.server.World thunderLevel
+public net.minecraft.server.Block *
+public net.minecraft.server.ItemStack *
 
 # methods
 public net.minecraft.server.PlayerInventory getComponents()Ljava/util/List;
 public net.minecraft.server.EntityHuman releaseShoulderEntities()V;
 public net.minecraft.server.Entity setYawPitch(FF)V;
 public net.minecraft.server.PlayerChunkMap addEntity(Lnet/minecraft/server/Entity;)V;
-public net.minecraft.server.Block dropExperience(Lnet/minecraft/server/World;Lnet/minecraft/server/BlockPosition;I)V
-
+public net.minecraft.server.Block *
