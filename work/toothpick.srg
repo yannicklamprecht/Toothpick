@@ -1,4 +1,6 @@
-# field clashes
+CL: net/minecraft/server/PlayerChunkMap$a net/minecraft/server/level/ChunkMap$DistanceManagerOH
+CL: net/minecraft/server/VillagerTrades$IMerchantRecipeOption net/minecraft/world/entity/npc/VillagerTrades$ItemListing
+# field clashes / obf helpers
 FD: net/minecraft/server/PlayerConnection/server net/minecraft/server/network/ServerGamePacketListenerImpl/craftServer
 FD: net/minecraft/server/RegionFile/file net/minecraft/world/level/chunk/storage/RegionFile/craftFile
 FD: net/minecraft/server/ContainerWorkbench/player net/minecraft/world/inventory/CraftingMenu/craftplayer
@@ -11,7 +13,7 @@ MD: net/minecraft/server/PacketDataSerializer/readVarInt ()I net/minecraft/netwo
 MD: net/minecraft/server/PacketDataSerializer/readUUID ()Ljava/util/UUID; net/minecraft/network/FriendlyByteBuf/readUUIDOH ()Ljava/util/UUID;
 MD: net/minecraft/server/IChunkLoader/write (Lnet/minecraft/server/ChunkCoordIntPair;Lnet/minecraft/server/NBTTagCompound;)V net/minecraft/world/level/chunk/storage/ChunkStorage/writeOH (Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/nbt/CompoundTag;)V
 MD: net/minecraft/server/BiomeManager/getBiome (Lnet/minecraft/server/BlockPosition;)Lnet/minecraft/server/BiomeBase; net/minecraft/world/level/biome/BiomeManager/getBiomeOH (Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/biome/Biome;
-MD: net/minecraft/server/AxisAlignedBB/contains (DDD)Z net/minecraft/world/phys/AABB/containsOH (DDD)Z
+MD: net/minecraft/server/AxisAlignedBB/contains (Lnet/minecraft/server/Vec3D;)Z net/minecraft/world/phys/AABB/containsOH (Lnet/minecraft/world/phys/Vec3;)Z
 MD: net/minecraft/server/NetworkManager/sendPacket (Lnet/minecraft/server/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V net/minecraft/network/Connection/sendPacketOH (Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V
 MD: net/minecraft/server/ChunkCoordIntPair/asLong (II)J net/minecraft/world/level/ChunkPos/asLongOH (II)J
 MD: net/minecraft/server/ChunkCoordIntPair/asLong (Lnet/minecraft/server/BlockPosition;)J net/minecraft/world/level/ChunkPos/asLongOH (Lnet/minecraft/core/BlockPos;)J
@@ -29,9 +31,24 @@ MD: net/minecraft/server/LocaleLanguage/getInstance ()Lnet/minecraft/server/Loca
 MD: net/minecraft/server/PacketHandshakingInSetProtocol/getProtocolVersion ()I net/minecraft/network/protocol/handshake/ClientIntentionPacket/getProtocolVersionOH ()I
 MD: net/minecraft/server/EntityAreaEffectCloud/getType ()Ljava/lang/String; net/minecraft/world/entity/AreaEffectCloud/getTypeOH ()Ljava/lang/String;
 MD: net/minecraft/world/entity/projectile/Arrow/getType ()Ljava/lang/String; net/minecraft/server/EntityTippedArrow/getTypeOH ()Ljava/lang/String;
+MD: net/minecraft/server/World/getServer ()Lorg/bukkit/craftbukkit/CraftServer; net/minecraft/world/level/Level/getServerOH ()Lorg/bukkit/craftbukkit/CraftServer;
+MD: net/minecraft/server/EntityTippedArrow/getType ()Ljava/lang/String; net/minecraft/world/entity/projectile/Arrow/getTypeOH ()Ljava/lang/String;
+MD: net/minecraft/server/EntityBoat/getType ()Lnet/minecraft/server/EntityBoat$EnumBoatType; net/minecraft/world/entity/vehicle/Boat/getTypeOH ()Lnet/minecraft/world/entity/vehicle/Boat$Type;
+MD: net/minecraft/server/VillagerTrades$IMerchantRecipeOption/a (Lnet/minecraft/server/Entity;Ljava/util/Random;)Lnet/minecraft/server/MerchantRecipe; net/minecraft/world/entity/npc/VillagerTrades$ItemListing/getOffer (Lnet/minecraft/world/entity/Entity;Ljava/util/Random;)Lnet/minecraft/world/item/trading/MerchantOffer;
+MD: net/minecraft/server/TileEntityBeacon/getLevel ()I net/minecraft/world/level/block/entity/BeaconBlockEntity/getLevelOH ()I
+MD: net/minecraft/server/BlockPosition/down ()Lnet/minecraft/server/BlockPosition; net/minecraft/core/BlockPos/below ()Lnet/minecraft/core/BlockPos;
+MD: net/minecraft/server/BlockPosition/down (I)Lnet/minecraft/server/BlockPosition; net/minecraft/core/BlockPos/below (I)Lnet/minecraft/core/BlockPos;
+MD: net/minecraft/server/MinecraftServer/postToMainThread (Ljava/lang/Runnable;)Ljava/lang/Runnable; net/minecraft/util/thread/BlockableEventLoop/wrapRunnable (Ljava/lang/Runnable;)Ljava/lang/Runnable;
 
-
-
-
-
-
+# dum ageable inheritance problem
+MD: net/minecraft/server/EntityBee/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityBee; net/minecraft/world/entity/animal/Bee/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Bee;
+MD: net/minecraft/server/EntityCat/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityCat; net/minecraft/world/entity/animal/Cat/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Cat;
+MD: net/minecraft/server/EntityChicken/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityChicken; net/minecraft/world/entity/animal/Chicken/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Chicken;
+MD: net/minecraft/server/EntityCow/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityCow; net/minecraft/world/entity/animal/Cow/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Cow;
+MD: net/minecraft/server/EntityFox/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityFox; net/minecraft/world/entity/animal/Fox/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Fox;
+MD: net/minecraft/server/EntityOcelot/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityOcelot; net/minecraft/world/entity/animal/Ocelot/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Ocelot;
+MD: net/minecraft/server/EntityPig/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityPig; net/minecraft/world/entity/animal/Pig/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Pig;
+MD: net/minecraft/server/EntityRabbit/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityRabbit; net/minecraft/world/entity/animal/Rabbit/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Rabbit;
+MD: net/minecraft/server/EntityVillager/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityVillager; net/minecraft/world/entity/npc/Villager/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/npc/Villager;
+MD: net/minecraft/server/EntitySheep/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntitySheep; net/minecraft/world/entity/animal/Sheep/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Sheep;
+MD: net/minecraft/server/EntityWolf/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityWolf; net/minecraft/world/entity/animal/Wolf/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Wolf;

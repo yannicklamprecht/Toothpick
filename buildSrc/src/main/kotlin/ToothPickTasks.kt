@@ -55,10 +55,10 @@ fun Project.initToothPickTasks() = run {
                 // Reset or initialize subproject
                 logger.lifecycle(">>> Resetting subproject $name")
                 if (projectDir.exists()) {
-                    ensureSuccess(cmd("git", "reset", "--hard", "origin/master", directory = projectDir))
-                } else {
-                    ensureSuccess(cmd("git", "clone", sourceRepo.absolutePath, projectDir.absolutePath, directory = rootDir))
+                   projectDir.deleteRecursively()
                 }
+                ensureSuccess(cmd("git", "clone", sourceRepo.absolutePath, projectDir.absolutePath, directory = rootDir))
+
 
                 // Apply patches
                 val patches = patchesDir.listFiles()

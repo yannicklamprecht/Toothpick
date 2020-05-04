@@ -5,7 +5,7 @@ Subject: [PATCH] Branding changes
 
 
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 664e2e70936ff731a72989e716247ba3f1d49098..0ee0075d0bc3827959d67f754591a956966d49e9 100644
+index d60fe249ea0c6aa42828d46931a4683c7fe83ce8..ac7a3bbd692a69a91fadd660b548c587db6aeca7 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1615,7 +1615,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -16,4 +16,4 @@ index 664e2e70936ff731a72989e716247ba3f1d49098..0ee0075d0bc3827959d67f754591a956
 +        return "Toothpick"; // Toothpick > //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
      }
  
-     public CrashReport b(CrashReport crashreport) {
+     public CrashReport fillReport(CrashReport crashreport) {

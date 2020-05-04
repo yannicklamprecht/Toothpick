@@ -1,7 +1,9 @@
 # ATS USE SPIGOT MAPPINGS!
 
 # classes
-public net.minecraft.server.ChunkProviderServer.a
+public net.minecraft.server.ChunkProviderServer$a
+public net.minecraft.server.LoginListener$EnumProtocolState
+public net.minecraft.server.DataBits$DataBitConsumer
 
 # fields
 public net.minecraft.server.WorldServer hasPhysicsEvent
@@ -15,6 +17,9 @@ public net.minecraft.server.Entity isQueuedForRegister
 public net.minecraft.server.Entity addedToWorldStack
 public net.minecraft.server.Entity datawatcher
 public net.minecraft.server.Entity tracker
+public net.minecraft.server.Entity uniqueID
+public net.minecraft.server.Entity entitySlice
+public net.minecraft.server.Entity currentChunk
 public net.minecraft.server.Chunk tickingList
 public net.minecraft.server.EntityDrowned navigationWater
 public net.minecraft.server.EntityDrowned navigationLand
@@ -25,12 +30,32 @@ public net.minecraft.server.PacketPlayInFlying *
 public net.minecraft.server.BaseBlockPosition *
 public net.minecraft.server.World rainLevel
 public net.minecraft.server.World thunderLevel
+public net.minecraft.server.World stuctureLock
+public net.minecraft.server.World strongholdStuctures
+public net.minecraft.server.World strongholdCoords
 public net.minecraft.server.Block *
 public net.minecraft.server.ItemStack *
+public net.minecraft.server.RegionFileSection *
+public net.minecraft.server.PlayerChunk *
+public net.minecraft.server.PlayerChunkMap *
+public net.minecraft.server.EntityPhantom spawningEntity
+public net.minecraft.server.ChunkSection nonEmptyBlockCount
 
 # methods
 public net.minecraft.server.PlayerInventory getComponents()Ljava/util/List;
 public net.minecraft.server.EntityHuman releaseShoulderEntities()V;
 public net.minecraft.server.Entity setYawPitch(FF)V;
 public net.minecraft.server.PlayerChunkMap addEntity(Lnet/minecraft/server/Entity;)V;
-public net.minecraft.server.Block *
+public net.minecraft.server.Block dropExperience(Lnet/minecraft/server/World;Lnet/minecraft/server/BlockPosition;ILnet/minecraft/server/EntityPlayer;)V;
+public net.minecraft.server.ChunkProviderServer addLoadedChunk(Lnet/minecraft/server/Chunk;)V;
+public net.minecraft.server.ChunkProviderServer removeLoadedChunk(Lnet/minecraft/server/Chunk;)V;
+public net.minecraft.server.IBlockAccess getTileEntity(Lnet/minecraft/server/BlockPosition;)Lnet/minecraft/server/TileEntity;
+public net.minecraft.server.World getTileEntity(Lnet/minecraft/server/BlockPosition;Z)Lnet/minecraft/server/TileEntity;
+public net.minecraft.server.ISourceBlock getTileEntity()Lnet/minecraft/server/TileEntity;
+public net.minecraft.server.TileEntityBeacon getLevels()I
+public net.minecraft.server.TileEntityBeacon getLevel()I
+public net.minecraft.server.EntityTurtle r(Z)V
+public net.minecraft.server.EntityTurtle eu()Z
+public net.minecraft.server.ChunkProviderServer getPossibleChunkStatuses()Ljava/util/List;
+public net.minecraft.server.TileEntitySkull sanitizeTileEntityUUID(Lnet/minecraft/server/NBTTagCompound;)Lnet/minecraft/server/NBTTagCompound;
+public net.minecraft.server.TileEntitySkull sanitizeUUID(Lnet/minecraft/server/NBTTagCompound;)V;

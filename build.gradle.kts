@@ -47,4 +47,9 @@ subprojects {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    tasks.getting(JavaCompile::class) {
+        options.compilerArgs.add("-Xmaxerrs")
+        options.compilerArgs.add("400")
+    }
 }
