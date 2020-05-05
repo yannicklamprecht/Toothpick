@@ -54,7 +54,7 @@ fun initRemappingTasks(project: Project): List<Task> {
                 if (klass != null) {
                     klassWith.deobfuscatedName = klass.obfuscatedName
                     klassWith.innerClassMappings.forEach { innerKlass ->
-                        val topKlass = classes.topLevelClassMappings.find { topKlass -> topKlass.deobfuscatedName == klass.deobfuscatedName}
+                        val topKlass = classes.topLevelClassMappings.find { topKlass -> topKlass.deobfuscatedName == klass.deobfuscatedName }
                         val topInnerClass = topKlass?.innerClassMappings?.find { topInnerKlass -> topInnerKlass.deobfuscatedName == innerKlass.deobfuscatedName }
                         innerKlass.deobfuscatedName = topInnerClass?.obfuscatedName
                     }
@@ -75,7 +75,7 @@ fun initRemappingTasks(project: Project): List<Task> {
 
             project.logger.info("Reading mojang...")
             val mojangFile = project.projectDir.resolve("work/server.txt")
-            if(!mojangFile.exists()) {
+            if (!mojangFile.exists()) {
                 mojangFile.writeText(URL("https://launcher.mojang.com/v1/objects/59c55ae6c2a7c28c8ec449824d9194ff21dc7ff1/server.txt").readText())
             }
             val mojangMappings = MappingFormats.byId("proguard").read(mojangFile.toPath())
@@ -96,7 +96,7 @@ fun initRemappingTasks(project: Project): List<Task> {
         dependsOn(createMappings)
         doLast {
             val projectDir = project.projectDir.toPath()
-            val outputDir = projectDir.resolve("work/Paper-Server-Remapped/src/main/java")
+            val outputDir = projectDir.resolve("work/Paper-Server-Remapped/src")
 
             val paper = project.projectDir.resolve("work/Paper/Paper-Server")
             val remapped = project.projectDir.resolve("work/Paper-Server-Remapped")
@@ -125,7 +125,7 @@ fun initRemappingTasks(project: Project): List<Task> {
             mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"))
             mercury.classPath.add(projectDir.resolve("work/Paper/Paper-API/src/main/java"))
 
-            project.subprojects.forEach { p ->
+            project.subprojects.filter { p -> p.name == "fake" }.forEach { p ->
                 p.configurations.filter { config -> config.isCanBeResolved }.forEach { config ->
                     config.resolvedConfiguration.files.filter { file -> !file.absolutePath.contains("build\\classes") }.forEach { file ->
                         mercury.classPath.add(file.toPath())
@@ -137,7 +137,12 @@ fun initRemappingTasks(project: Project): List<Task> {
             mercury.processors.add(AccessTransformerRewriter.create(ats))
             mercury.processors.add(BridgeMethodRewriter.create())
 
-            mercury.rewrite(projectDir.resolve("work/Paper/Paper-Server/src/main/java"), outputDir)
+            // run for main
+            mercury.rewrite(projectDir.resolve("work/Paper/Paper-Server/src/main/java"), outputDir.resolve("main/java"))
+            // add main to CP
+            mercury.classPath.add(outputDir.resolve("main/java"))
+            // run for test
+            //mercury.rewrite(projectDir.resolve("work/Paper/Paper-Server/src/test/java"), outputDir.resolve("test/java"))
 
             runGitCmd("add", ".", "-A", directory = outputDir.toFile())
             runGitCmd("commit", "-m", "Mojang Mappings", directory = outputDir.toFile())

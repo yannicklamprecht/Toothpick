@@ -10,6 +10,10 @@ setupSubproject("${forkName.toLowerCase()}-server") {
     projectDir = File("$forkName-Server")
     buildFileName = "../subprojects/server.gradle.kts"
 }
+setupSubproject("fake") {
+    projectDir = File("work")
+    buildFileName = "../subprojects/fake.gradle.kts"
+}
 
 inline fun setupSubproject(name: String, block: ProjectDescriptor.() -> Unit) {
     include(name)

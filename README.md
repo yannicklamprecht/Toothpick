@@ -12,7 +12,6 @@ That means, that almost every single public plugin breaks (every plugin that acc
 ## TODO
 
 * cleanup
-* fix pom error (manually coping work/Paper/Paper-Server/pom.xml to MiniPaper-Server is needed for now)
 * fix tests (need to remap tests)
 
 ## Building
