@@ -11,21 +11,18 @@ That means, that almost every single public plugin breaks (every plugin that acc
 
 ## TODO
 
-* Long2ObjectMap patch shit
-* figure out why not all classes end up remapped
-* copy missing files to server folder (pom.xml for example) (actually, it needs to be a git repo, upps, copy everything, delete src)
-* make it compile, duh
+* make it compile, duh (only ~60 compile errors left!)
 
 ## Building
 
-Figure it out yourself or GTFO (for now, pls come back later when this is usable :))
+This uses gradle. Interesting Tasks:
+* `setupUpstream` -> does paper stuff
+* `mojangMappings` -> does the special juice
+* `applyPatches` -> applies toothpick patches ontop of mojang mappings
+* `rebuildPatches` -> rebuilds patches, duh
+* `cleanUp` -> deletes everything in the work dirs and you will have to run ^ again
 
-Tasks:
-* setupUpstream -> does paper stuff
-* mojangMappings -> does the special juice
-* applyPatches -> applies toothpick patches ontop of mojang mappings
-* rebuildPatches -> rebuilds patches, duh
-* cleanUp -> deletes everything in the work dirs and you will have to run ^ again
+You can run those in both windows and linux env, but you shouldn't fix and match (so once you ran `setupUpstream` in WSL you can't run it again in windows until you run `cleanUp`)
 
 ## License
 
@@ -41,4 +38,6 @@ In particular, Toothpick uses:
  * [Mercury](https://github.com/CadixDev/Mercury) for applying those mappings to the paper source
  * [Atlas](https://github.com/CadixDev/Atlas) for applying those mappings to the vanilla server jar
  
- I would also like to thank all upstream projects for providing the base for this project.
+I would also like to thank all upstream projects for providing the base for this project.
+ 
+Also a huge thanks for Dinnerbone and the team at mojang for a) making this game and b) giving us the obfuscation maps.
