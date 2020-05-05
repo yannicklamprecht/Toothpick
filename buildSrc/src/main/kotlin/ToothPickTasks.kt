@@ -106,7 +106,9 @@ fun Project.initToothPickTasks() = run {
 
     val mojangMappings: Task by tasks.creating {
         group = taskGroupPublic
-        dependsOn(initRemappingTasks(project))
+        initRemappingTasks(project).forEach {
+            dependsOn(it)
+        }
     }
 
     val cleanUp: Task by tasks.creating {

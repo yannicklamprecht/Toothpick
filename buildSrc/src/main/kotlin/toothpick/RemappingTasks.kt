@@ -20,7 +20,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
-fun initRemappingTasks(project: Project): Task {
+fun initRemappingTasks(project: Project): List<Task> {
     val createMappings: Task by project.tasks.creating {
         group = taskGroupPrivate
         onlyIf {
@@ -88,19 +88,6 @@ fun initRemappingTasks(project: Project): Task {
             MappingFormats.SRG.write(mojangToSpigot, project.projectDir.toPath().resolve("work/mojangToSpigot.srg"))
             MappingFormats.SRG.write(spigotToMojang, project.projectDir.toPath().resolve("work/spigotToMojang.srg"))
             project.logger.info("Done!")
-
-//            project.logger.info("Reading yarn...")
-//            val tiny = LorenzTiny.readTinyMappings(projectDir.resolve("work/yarn-tiny-1.15.2+build.local").toAbsolutePath())
-//            val yarnMappings = LorenzTiny.readMappings(tiny, "named", "official").read(MappingSet())
-//
-//            project.logger.info("Combining...")
-//            val yarnToSpigot = yarnMappings.merge(nmsToSpigot)
-//            val spigotToYarn = yarnToSpigot.reverse()
-//
-//            project.logger.info("Writing...")
-//            MappingFormats.SRG.write(yarnToSpigot, project.projectDir.toPath().resolve("work/yarnToSpigot.srg"))
-//            MappingFormats.SRG.write(spigotToYarn, project.projectDir.toPath().resolve("work/spigotToYarn.srg"))
-//            project.logger.info("Done!")
         }
     }
 
@@ -159,7 +146,7 @@ fun initRemappingTasks(project: Project): Task {
 
     val applyAtlas: Task by project.tasks.creating {
         group = taskGroupPrivate
-        dependsOn(applyMercury)
+        dependsOn(createMappings)
         doLast {
             val projectDir = project.projectDir.toPath()
             val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
@@ -179,5 +166,5 @@ fun initRemappingTasks(project: Project): Task {
         }
     }
 
-    return applyAtlas
+    return listOf(applyAtlas, applyMercury)
 }
