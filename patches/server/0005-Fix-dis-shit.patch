@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MiniDigger <admin@minidigger.me>
+Date: Tue, 5 May 2020 23:55:41 +0200
+Subject: [PATCH] Fix dis shit
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 7ca80f0a2a4ad147b0130d06709b46df46abd53e..26423851ed930e09e5db278fb6d65c54cbc26f72 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -212,7 +212,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
+     private long keepAliveChallenge; private void setKeepAliveID(long keepAliveID) { this.keepAliveChallenge = keepAliveID;}; private long getKeepAliveID() {return this.keepAliveChallenge; };  // Paper - OBFHELPER
+     // CraftBukkit start - multithreaded fields
+     private volatile int chatSpamTickCount;
+-    private static final AtomicIntegerFieldUpdater chatSpamField = AtomicIntegerFieldUpdater.newUpdater(ServerGamePacketListenerImpl.class, "chatThrottle");
++    private static final AtomicIntegerFieldUpdater chatSpamField = AtomicIntegerFieldUpdater.newUpdater(ServerGamePacketListenerImpl.class, "chatSpamTickCount"); // MiniPaper - fix dis shit
+     private final java.util.concurrent.atomic.AtomicInteger tabSpamLimiter = new java.util.concurrent.atomic.AtomicInteger(); // Paper - configurable tab spam limits
+     // CraftBukkit end
+     private int dropSpamTickCount;
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 6b3e5eeed3a0db0e2ec78e6c51b6b4f49cc9d3f0..ac9dc3c96061fd5347560eb003cdc0e2f00ddf73 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -311,11 +311,11 @@ public abstract class Entity implements Nameable, CommandSource, KeyedObject { /
+         Boolean hardCollides = cachedOverrides.get(this.getClass());
+         if (hardCollides == null) {
+             try {
+-                Object getHardCollisionBoxMethod = Entity.class.getMethod("au");
+-                Object getHardCollisionBoxEntityMethod = Entity.class.getMethod("j", Entity.class);
+-                if (!this.getClass().getMethod("au").equals(getHardCollisionBoxMethod)) {
++                Object getHardCollisionBoxMethod = Entity.class.getMethod("getCollideBox"); // MiniPaper - fix dis shit
++                Object getHardCollisionBoxEntityMethod = Entity.class.getMethod("getCollideAgainstBox", Entity.class); // MiniPaper - fix dis shit
++                if (!this.getClass().getMethod("getCollideBox").equals(getHardCollisionBoxMethod)) { // MiniPaper - fix dis shit
+                     hardCollides = Boolean.TRUE;
+-                } else if (!this.getClass().getMethod("j", Entity.class).equals(getHardCollisionBoxEntityMethod)) {
++                } else if (!this.getClass().getMethod("getCollideAgainstBox", Entity.class).equals(getHardCollisionBoxEntityMethod)) { // MiniPaper - fix dis shit
+                     hardCollides = Boolean.TRUE;
+                 } else {
+                     hardCollides = Boolean.FALSE;

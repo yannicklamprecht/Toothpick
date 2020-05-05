@@ -126,10 +126,10 @@ fun initRemappingTasks(project: Project): Task {
             Files.createDirectory(outputDir)
 
             val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
-            val combined = MappingFormats.SRG.read(mappings, projectDir.resolve("work/toothpick.srg"))
+            val combined = MappingFormats.SRG.read(mappings, projectDir.resolve("toothpick/toothpick.srg"))
             MappingFormats.SRG.write(combined, project.projectDir.toPath().resolve("work/spigotToMojangPlusToothpick.srg"))
 
-            val ats = AccessTransformFormats.FML.read(projectDir.resolve("work/toothpick.at"))
+            val ats = AccessTransformFormats.FML.read(projectDir.resolve("toothpick/toothpick.at"))
             val mercury = Mercury()
 
             mercury.sourceCompatibility = "1.8"
@@ -163,10 +163,10 @@ fun initRemappingTasks(project: Project): Task {
         doLast {
             val projectDir = project.projectDir.toPath()
             val mappings = MappingFormats.SRG.read(projectDir.resolve("work/spigotToMojang.srg"))
-            val combined = MappingFormats.SRG.read(mappings, projectDir.resolve("work/toothpick.srg"))
+            val combined = MappingFormats.SRG.read(mappings, projectDir.resolve("toothpick/toothpick.srg"))
             MappingFormats.SRG.write(combined, project.projectDir.toPath().resolve("work/spigotToMojangPlusToothpick.srg"))
 
-            val ats = AccessTransformFormats.FML.read(projectDir.resolve("work/toothpick.at"))
+            val ats = AccessTransformFormats.FML.read(projectDir.resolve("toothpick/toothpick.at"))
             val atlas = Atlas()
             atlas.install {
                 AccessTransformingJarEntryTransformer(ats)
