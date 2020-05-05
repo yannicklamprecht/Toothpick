@@ -21,12 +21,12 @@ dependencies {
         if (file.exists()) {
             if (file.delete()) {
                 project.parent!!.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(file, true)
-                compileOnly(files(file))
+                api(files(file))
                 break
             }
         } else {
             project.parent!!.projectDir.resolve("work/1.15.2-mojang-mapped.jar").copyTo(file, true)
-            compileOnly(files(file))
+            api(files(file))
             break
         }
     }
@@ -51,14 +51,6 @@ val shadowJar by tasks.getting(ShadowJar::class) {
                 "Specification-Vendor" to "Bukkit Team"
         )
     }
-
-    // Don't like to do this but sadly have to do this for compatibility reasons
-    val relocVersion = toothPick.minecraftVersion.replace(".", "_")
-    relocate("org.bukkit.craftbukkit", "org.bukkit.craftbukkit.v$relocVersion") {
-        exclude("org.bukkit.craftbukkit.Main*")
-    }
-
-    relocate("net.minecraft.server", "net.minecraft.server.v$relocVersion")
 }
 
 tasks["build"].dependsOn(shadowJar)

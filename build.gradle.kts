@@ -49,6 +49,7 @@ subprojects {
     }
 
     tasks.getting(JavaCompile::class) {
+        options.encoding = "UTF-8"
         options.compilerArgs.add("-Xmaxerrs")
         options.compilerArgs.add("400")
     }
