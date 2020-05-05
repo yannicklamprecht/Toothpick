@@ -7,9 +7,6 @@ import org.cadixdev.lorenz.asm.LorenzRemapper
 class DebugJarEntryRemappingTransformer(private val lorenzRemapper: LorenzRemapper) : JarEntryRemappingTransformer(lorenzRemapper) {
 
     override fun transform(entry: JarClassEntry?): JarClassEntry {
-        if(entry?.simpleName == "CriterionTriggers") {
-            println("got ${entry.simpleName}")
-        }
         return try {
             synchronized(lorenzRemapper) {
                 super.transform(entry)

@@ -11,7 +11,7 @@ That means, that almost every single public plugin breaks (every plugin that acc
 
 ## TODO
 
-* make it compile, duh (only ~60 compile errors left!)
+* test it
 
 ## Building
 

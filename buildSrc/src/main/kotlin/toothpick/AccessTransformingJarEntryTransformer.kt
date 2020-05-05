@@ -6,6 +6,7 @@ import org.cadixdev.bombe.jar.JarClassEntry
 import org.cadixdev.bombe.jar.JarEntryTransformer
 import org.cadixdev.bombe.type.signature.MethodSignature
 import org.objectweb.asm.*
+import java.lang.reflect.Modifier
 
 
 class AccessTransformingJarEntryTransformer(private val ats: AccessTransformSet) : JarEntryTransformer {
@@ -69,6 +70,9 @@ class AccessTransformingJarEntryTransformer(private val ats: AccessTransformSet)
             var newAccess = access
             if (accessChange == AccessChange.PUBLIC) {
                 newAccess = access or accessChange.modifier
+                if(newAccess and Modifier.PROTECTED != 0) {
+                    newAccess = newAccess and Modifier.PROTECTED.inv()
+                }
             }
             return newAccess
         }
