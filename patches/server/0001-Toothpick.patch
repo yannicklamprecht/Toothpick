@@ -71,7 +71,7 @@ index 14adabdcc8b05bad9fb31fbd6205258643dca615..4d744b1bc0d60956f04055dc1185b151
              if (optionset.has("initSettings")) { // CraftBukkit
                  MinecraftServer.LOGGER.info("Initialized '" + java_nio_file_path.toAbsolutePath().toString() + "' and '" + java_nio_file_path1.toAbsolutePath().toString() + "'");
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 81596fbf13d9341a1d691f5a8f8d36de33dea0e1..0afdbf6e5b71bdf83c2354d160e8ec4c413616ae 100644
+index 81596fbf13d9341a1d691f5a8f8d36de33dea0e1..e936df54455a4e88bf1d8eb684ea76db20f432eb 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -1738,7 +1738,7 @@ public class ServerLevel extends net.minecraft.world.level.Level {
@@ -79,12 +79,25 @@ index 81596fbf13d9341a1d691f5a8f8d36de33dea0e1..0afdbf6e5b71bdf83c2354d160e8ec4c
      }
  
 -    @Override
-+//    @Override
++//    @Override // Toothpick
      public ServerChunkCache getChunkSourceOH() {
          return (ServerChunkCache) super.getChunkSource();
      }
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 7ca80f0a2a4ad147b0130d06709b46df46abd53e..e7edebe45e56562a76af50c0945d3e337ecc0b09 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -212,7 +212,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
+     private long keepAliveChallenge; private void setKeepAliveID(long keepAliveID) { this.keepAliveChallenge = keepAliveID;}; private long getKeepAliveID() {return this.keepAliveChallenge; };  // Paper - OBFHELPER
+     // CraftBukkit start - multithreaded fields
+     private volatile int chatSpamTickCount;
+-    private static final AtomicIntegerFieldUpdater chatSpamField = AtomicIntegerFieldUpdater.newUpdater(ServerGamePacketListenerImpl.class, "chatThrottle");
++    private static final AtomicIntegerFieldUpdater chatSpamField = AtomicIntegerFieldUpdater.newUpdater(ServerGamePacketListenerImpl.class, "chatSpamTickCount"); // Toothpick - remap fix
+     private final java.util.concurrent.atomic.AtomicInteger tabSpamLimiter = new java.util.concurrent.atomic.AtomicInteger(); // Paper - configurable tab spam limits
+     // CraftBukkit end
+     private int dropSpamTickCount;
 diff --git a/src/main/java/net/minecraft/server/players/GameProfileCache.java b/src/main/java/net/minecraft/server/players/GameProfileCache.java
-index 3b661ac25b12ce75b81d2104c2ec13991dcb4954..0d8ebc1b152eb3aafd9653d3079b71e53788593e 100644
+index 3b661ac25b12ce75b81d2104c2ec13991dcb4954..8a8265a585414a969cd9881c9e105e0fbf0e6f33 100644
 --- a/src/main/java/net/minecraft/server/players/GameProfileCache.java
 +++ b/src/main/java/net/minecraft/server/players/GameProfileCache.java
 @@ -344,7 +344,7 @@ public class GameProfileCache {
@@ -92,10 +105,30 @@ index 3b661ac25b12ce75b81d2104c2ec13991dcb4954..0d8ebc1b152eb3aafd9653d3079b71e5
                          }
  
 -                        return GameProfileCache.this.new net.minecraft.server.players.GameProfileCache.UserCacheEntry(new GameProfile(uuid, s1), date);
-+                        return GameProfileCache.this.new UserCacheEntry(new GameProfile(uuid, s1), date);
++                        return GameProfileCache.this.new UserCacheEntry(new GameProfile(uuid, s1), date); // Toothpick decomp fix
                      } else {
                          return null;
                      }
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 6b3e5eeed3a0db0e2ec78e6c51b6b4f49cc9d3f0..7781a07be389ee607125acfed8ede006055f0bc4 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -311,11 +311,11 @@ public abstract class Entity implements Nameable, CommandSource, KeyedObject { /
+         Boolean hardCollides = cachedOverrides.get(this.getClass());
+         if (hardCollides == null) {
+             try {
+-                Object getHardCollisionBoxMethod = Entity.class.getMethod("au");
+-                Object getHardCollisionBoxEntityMethod = Entity.class.getMethod("j", Entity.class);
+-                if (!this.getClass().getMethod("au").equals(getHardCollisionBoxMethod)) {
++                Object getHardCollisionBoxMethod = Entity.class.getMethod("getCollideBox"); // Toothpick - remap fix
++                Object getHardCollisionBoxEntityMethod = Entity.class.getMethod("getCollideAgainstBox", Entity.class); // Toothpick - remap fix
++                if (!this.getClass().getMethod("getCollideBox").equals(getHardCollisionBoxMethod)) { // Toothpick - remap fix
+                     hardCollides = Boolean.TRUE;
+-                } else if (!this.getClass().getMethod("j", Entity.class).equals(getHardCollisionBoxEntityMethod)) {
++                } else if (!this.getClass().getMethod("getCollideAgainstBox", Entity.class).equals(getHardCollisionBoxEntityMethod)) { // Toothpick - remap fix
+                     hardCollides = Boolean.TRUE;
+                 } else {
+                     hardCollides = Boolean.FALSE;
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 index ad8a93ead5cd69f281f935293fcc573806a6ba2e..8c360e743eb1a8606c6096a634785c8dc72aaade 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
