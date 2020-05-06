@@ -35,7 +35,7 @@ fun applyPatches(project: Project): Task {
             }
 
             runGitCmd("add", "src", directory = cb)
-            runGitCmd("commit", "-m", "Minecraft $ ($date)", "--author=auto@mated.null", directory = cb)
+            runGitCmd("commit", "-m", "Minecraft $ ($date)", "--author=automated <auto@mated.null>", directory = cb)
         }
     }
 
@@ -53,7 +53,7 @@ fun applyPatches(project: Project): Task {
             }
 
             ensureSuccess(runGitCmd("add", "src", directory = cb))
-            ensureSuccess(runGitCmd("commit", "-m", "Craftbukkit $ $date", "--author=auto@mated.null", directory = cb))
+            ensureSuccess(runGitCmd("commit", "-m", "Craftbukkit $ $date", "--author=automated <auto@mated.null>", directory = cb))
             ensureSuccess(runGitCmd("checkout", "-f", "HEAD~2", directory = cb))
         }
     }
