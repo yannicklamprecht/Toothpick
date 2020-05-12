@@ -108,7 +108,9 @@ fun Project.initToothPickTasks() = run {
         group = taskGroupPublic
         initRemappingTasks(project).forEach {
             dependsOn(it)
+            it.mustRunAfter(loadData)
         }
+        dependsOn(loadData)
     }
 
     val cleanUp: Task by tasks.creating {

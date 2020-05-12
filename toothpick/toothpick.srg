@@ -5,6 +5,7 @@ CL: net/minecraft/server/GameRules$GameRuleInt net/minecraft/world/level/GameRul
 CL: net/minecraft/server/RecipeItemStack$StackProvider net/minecraft/world/item/crafting/Ingredient$ItemValue
 CL: net/minecraft/server/RecipeItemStack$Provider net/minecraft/world/item/crafting/Ingredient$Value
 CL: net/minecraft/server/DoubleBlockFinder$Combiner net/minecraft/world/level/block/DoubleBlockCombiner$Combiner
+CL: net/minecraft/server/PacketPlayOutPlayerInfo$PlayerInfoData net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket$PlayerUpdate
 
 # field clashes / obf helpers
 FD: net/minecraft/server/PlayerConnection/server net/minecraft/server/network/ServerGamePacketListenerImpl/craftServer
@@ -12,6 +13,11 @@ FD: net/minecraft/server/RegionFile/file net/minecraft/world/level/chunk/storage
 FD: net/minecraft/server/ContainerWorkbench/player net/minecraft/world/inventory/CraftingMenu/craftplayer
 FD: net/minecraft/server/BlockState/hashCode net/minecraft/world/level/block/state/properties/AbstractProperty/hashCodeOH
 FD: net/minecraft/server/RecipeItemStack$StackProvider/a net/minecraft/world/item/crafting/Ingredient$ItemValue/item
+FD: net/minecraft/server/PacketPlayOutPlayerInfo$PlayerInfoData/a net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket$PlayerUpdate/this$0
+FD: net/minecraft/server/PacketPlayOutPlayerInfo$PlayerInfoData/b net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket$PlayerUpdate/latency
+FD: net/minecraft/server/PacketPlayOutPlayerInfo$PlayerInfoData/c net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket$PlayerUpdate/gameMode
+FD: net/minecraft/server/PacketPlayOutPlayerInfo$PlayerInfoData/d net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket$PlayerUpdate/profile
+FD: net/minecraft/server/PacketPlayOutPlayerInfo$PlayerInfoData/e net/minecraft/network/protocol/game/ClientboundPlayerInfoPacket$PlayerUpdate/displayName
 # method clashes / obf helpers
 MD: net/minecraft/server/EntityWitch/isDrinkingPotion ()Z net/minecraft/world/entity/monster/Witch/isDrinkingPotionOH ()Z
 MD: net/minecraft/server/EntityVex/getOwner ()Lnet/minecraft/server/EntityInsentient; net/minecraft/world/entity/monster/Vex/getOwnerOH ()Lnet/minecraft/world/entity/Mob;
@@ -85,6 +91,17 @@ MD: net/minecraft/server/LootEnchantFunction$a/d ()Lnet/minecraft/server/LootEnc
 MD: net/minecraft/server/LootItemFunctionConditional$c/b (Lcom/google/gson/JsonObject;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/server/LootItemFunctionConditional; net/minecraft/world/level/storage/loot/functions/LootItemConditionalFunction$Serializer/deserialize (Lcom/google/gson/JsonObject;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/world/level/storage/loot/functions/LootItemConditionalFunction;
 MD: net/minecraft/server/LootItemFunctionConditional$a/b (Lnet/minecraft/server/LootItemCondition$a;)Lnet/minecraft/server/LootItemFunctionConditional$a; net/minecraft/server/LootItemFunctionConditional$c/when (Lcom/google/gson/JsonObject;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/server/LootItemFunctionConditional;
 MD: net/minecraft/server/LootItemFunctionConditional$a/c ()Lnet/minecraft/server/LootItemFunctionConditional$a; net/minecraft/world/level/storage/loot/functions/LootItemConditionalFunction$Builder/unwrap ()Lnet/minecraft/world/level/storage/loot/functions/LootItemConditionalFunction$Builder;
+MD: net/minecraft/server/PathfinderGoalSelector/addGoal (ILnet/minecraft/server/PathfinderGoal;)V net/minecraft/world/entity/ai/goal/GoalSelector/addGoalOH (ILnet/minecraft/world/entity/ai/goal/Goal;)V
+MD: net/minecraft/server/PathfinderGoalSelector/removeGoal (Lnet/minecraft/server/PathfinderGoal;)V net/minecraft/world/entity/ai/goal/GoalSelector/removeGoalOH (Lnet/minecraft/world/entity/ai/goal/Goal;)V
+MD: net/minecraft/server/PathfinderGoalWrapped/getPriority ()I net/minecraft/world/entity/ai/goal/WrappedGoal/getPriorityOH ()I
+MD: net/minecraft/server/PathfinderGoalWrapped/getGoal ()Lnet/minecraft/server/PathfinderGoal; net/minecraft/world/entity/ai/goal/WrappedGoal/getGoalOH ()Lnet/minecraft/world/entity/ai/goal/Goal;
+MD: net/minecraft/server/LightEngineStorageBlock$a/b ()Lnet/minecraft/server/LightEngineStorageBlock$a; net/minecraft/world/level/lighting/BlockLightSectionStorage$BlockDataLayerStorageMap/copy ()Lnet/minecraft/world/level/lighting/BlockLightSectionStorage$BlockDataLayerStorageMap;
+MD: net/minecraft/server/LootTable$a/b (Lnet/minecraft/server/LootItemFunction$a;)Lnet/minecraft/server/LootTable$a; net/minecraft/world/level/storage/loot/LootTable$Builder/apply (Lnet/minecraft/world/level/storage/loot/functions/LootItemFunction$Builder;)Lnet/minecraft/world/level/storage/loot/LootTable$Builder;
+MD: net/minecraft/server/LootTable$a/c ()Lnet/minecraft/server/LootTable$a; net/minecraft/world/level/storage/loot/LootTable$Builder/unwrap ()Lnet/minecraft/world/level/storage/loot/LootTable$Builder;
+MD: net/minecraft/server/VoxelShapes/empty ()Lnet/minecraft/server/VoxelShape; net/minecraft/world/phys/shapes/Shapes/emptyOH ()Lnet/minecraft/world/phys/shapes/VoxelShape;
+MD: net/minecraft/server/BlockPosition/asLong (III)J net/minecraft/core/BlockPos/asLongOH (III)J
+MD: net/minecraft/server/AxisAlignedBB/intersects (DDDDDD)Z net/minecraft/world/phys/AABB/intersectsOH (DDDDDD)Z
+MD: net/minecraft/server/Entity/setBoundingBox (Lnet/minecraft/server/AxisAlignedBB;)V net/minecraft/world/entity/Entity/setBoundingBoxOH (Lnet/minecraft/world/phys/AABB;)V
 # dum ageable inheritance problem
 MD: net/minecraft/server/EntityBee/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityBee; net/minecraft/world/entity/animal/Bee/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Bee;
 MD: net/minecraft/server/EntityCat/createChild (Lnet/minecraft/server/EntityAgeable;)Lnet/minecraft/server/EntityCat; net/minecraft/world/entity/animal/Cat/getBreedOffspring (Lnet/minecraft/world/entity/AgableMob;)Lnet/minecraft/world/entity/animal/Cat;

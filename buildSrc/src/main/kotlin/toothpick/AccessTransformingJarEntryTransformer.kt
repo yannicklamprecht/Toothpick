@@ -2,6 +2,7 @@ package toothpick
 
 import org.cadixdev.at.AccessChange
 import org.cadixdev.at.AccessTransformSet
+import org.cadixdev.at.ModifierChange
 import org.cadixdev.bombe.jar.JarClassEntry
 import org.cadixdev.bombe.jar.JarEntryTransformer
 import org.cadixdev.bombe.type.signature.MethodSignature
@@ -32,7 +33,13 @@ class AccessTransformingJarEntryTransformer(private val ats: AccessTransformSet)
 
                 synchronized(ats) {
                     val klass = ats.getOrCreateClass(className)
-                    return super.visit(version, visit(access, klass.get().access), name, signature, superName, interfaces)
+
+                    var newAccess = visit(access, klass.get().access, klass.get().final, null);
+//                    if (className.contains("PacketPlayOutPlayerInfo\$PlayerInfoData")) {
+//                        newAccess = newAccess or Modifier.STATIC
+//                    }
+
+                    return super.visit(version, newAccess, name, signature, superName, interfaces)
                 }
             } catch (ex: Throwable) {
                 ex.printStackTrace()
@@ -45,7 +52,7 @@ class AccessTransformingJarEntryTransformer(private val ats: AccessTransformSet)
                 synchronized(ats) {
                     val klass = ats.getOrCreateClass(className)
                     val field = klass.getField(name)
-                    return super.visitField(visit(access, field.access), name, descriptor, signature, value)
+                    return super.visitField(visit(access, field.access, field.final, name), name, descriptor, signature, value)
                 }
             } catch (ex: Throwable) {
                 ex.printStackTrace()
@@ -58,7 +65,7 @@ class AccessTransformingJarEntryTransformer(private val ats: AccessTransformSet)
                 synchronized(ats) {
                     val klass = ats.getOrCreateClass(className)
                     val method = klass.getMethod(MethodSignature.of(name, descriptor))
-                    return super.visitMethod(visit(access, method.access), name, descriptor, signature, exceptions)
+                    return super.visitMethod(visit(access, method.access, method.final, null), name, descriptor, signature, exceptions)
                 }
             } catch (ex: Throwable) {
                 ex.printStackTrace()
@@ -66,13 +73,20 @@ class AccessTransformingJarEntryTransformer(private val ats: AccessTransformSet)
             return super.visitMethod(access, name, descriptor, signature, exceptions)
         }
 
-        private fun visit(access: Int, accessChange: AccessChange): Int {
+        private fun visit(access: Int, accessChange: AccessChange, modifier: ModifierChange, field: String?): Int {
             var newAccess = access
-            if (accessChange == AccessChange.PUBLIC) {
-                newAccess = access or accessChange.modifier
-                if(newAccess and Modifier.PROTECTED != 0) {
+            val packetOverride = (field != null && className.substringAfterLast("/").startsWith("Packet"))
+            if (accessChange == AccessChange.PUBLIC || packetOverride) {
+                newAccess = access or Modifier.PUBLIC
+                if (newAccess and Modifier.PROTECTED != 0) {
                     newAccess = newAccess and Modifier.PROTECTED.inv()
                 }
+                if (newAccess and Modifier.PRIVATE != 0) {
+                    newAccess = newAccess and Modifier.PRIVATE.inv()
+                }
+            }
+            if (modifier == ModifierChange.REMOVE) {
+                newAccess = newAccess and Modifier.FINAL.inv()
             }
             return newAccess
         }

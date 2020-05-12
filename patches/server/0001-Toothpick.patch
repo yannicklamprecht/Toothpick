@@ -58,10 +58,10 @@ index e9452d5515c3d564a0104eb09e5c0a6b1bb1beb0..65ee95a3f9bf86f1922489636d9639b4
  
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 14adabdcc8b05bad9fb31fbd6205258643dca615..4d744b1bc0d60956f04055dc1185b1511c08af93 100644
+index a37aee2a7fc8df055306bd78fbb81553dee5d20b..0bf0180dc7518b038a89891936822520b76e6304 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1458,7 +1458,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1481,7 +1481,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              dedicatedserversettings.forceSave();
              java.nio.file.Path java_nio_file_path1 = Paths.get("eula.txt");
@@ -71,10 +71,10 @@ index 14adabdcc8b05bad9fb31fbd6205258643dca615..4d744b1bc0d60956f04055dc1185b151
              if (optionset.has("initSettings")) { // CraftBukkit
                  MinecraftServer.LOGGER.info("Initialized '" + java_nio_file_path.toAbsolutePath().toString() + "' and '" + java_nio_file_path1.toAbsolutePath().toString() + "'");
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 81596fbf13d9341a1d691f5a8f8d36de33dea0e1..e936df54455a4e88bf1d8eb684ea76db20f432eb 100644
+index 915c3b2e61b6600de98451d51c2b0adbd20cb894..83063b7c1c941fdd27e5203f0ae27663f74f981b 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1738,7 +1738,7 @@ public class ServerLevel extends net.minecraft.world.level.Level {
+@@ -1737,7 +1737,7 @@ public class ServerLevel extends net.minecraft.world.level.Level {
          this.getChunkSourceOH().broadcastIncludingSelf(entity, new ClientboundEntityEventPacket(entity, b0));
      }
  
@@ -84,10 +84,10 @@ index 81596fbf13d9341a1d691f5a8f8d36de33dea0e1..e936df54455a4e88bf1d8eb684ea76db
          return (ServerChunkCache) super.getChunkSource();
      }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 7ca80f0a2a4ad147b0130d06709b46df46abd53e..e7edebe45e56562a76af50c0945d3e337ecc0b09 100644
+index 668b5ed8bd14aa290cd0f1c43df6b4c83f73a5db..c0dcf20f809042972662333bcb44673e5f11ef18 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -212,7 +212,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
+@@ -213,7 +213,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
      private long keepAliveChallenge; private void setKeepAliveID(long keepAliveID) { this.keepAliveChallenge = keepAliveID;}; private long getKeepAliveID() {return this.keepAliveChallenge; };  // Paper - OBFHELPER
      // CraftBukkit start - multithreaded fields
      private volatile int chatSpamTickCount;
@@ -110,10 +110,10 @@ index 3b661ac25b12ce75b81d2104c2ec13991dcb4954..8a8265a585414a969cd9881c9e105e0f
                          return null;
                      }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 6b3e5eeed3a0db0e2ec78e6c51b6b4f49cc9d3f0..7781a07be389ee607125acfed8ede006055f0bc4 100644
+index 44c7ba06263568d32788ce2a8877dacad30d6778..08468413e205c95da5e41c5c004c8765b38a9442 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -311,11 +311,11 @@ public abstract class Entity implements Nameable, CommandSource, KeyedObject { /
+@@ -312,11 +312,11 @@ public abstract class Entity implements Nameable, CommandSource, KeyedObject { /
          Boolean hardCollides = cachedOverrides.get(this.getClass());
          if (hardCollides == null) {
              try {
@@ -130,7 +130,7 @@ index 6b3e5eeed3a0db0e2ec78e6c51b6b4f49cc9d3f0..7781a07be389ee607125acfed8ede006
                  } else {
                      hardCollides = Boolean.FALSE;
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index ad8a93ead5cd69f281f935293fcc573806a6ba2e..8c360e743eb1a8606c6096a634785c8dc72aaade 100644
+index 002ce01ffd204a8fb65cf4c641609ee3809ad95b..f925961ce4e96a301191019c86bf6cc9ceb3edc3 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -118,7 +118,6 @@ import org.bukkit.Location;
@@ -160,7 +160,7 @@ index ad8a93ead5cd69f281f935293fcc573806a6ba2e..8c360e743eb1a8606c6096a634785c8d
              }
              // Paper end
 diff --git a/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java b/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
-index 9baeb30fc290c2174b17050ef82114fce23cb151..7fcc69987857dd18d5b01de8fb2ac3e23c264e8b 100644
+index 84a3037d431b9258b9cb3d96fdfea77ea39f7422..e691f3a9a7c6624d130ca1290bd48bdc1a7bc56d 100644
 --- a/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
 @@ -41,7 +41,6 @@ import net.minecraft.world.phys.Vec3;
@@ -333,7 +333,7 @@ index 01794a89b9b247e4506b46b56d80817cccfcf037..9b9ac2f42eb3e9ff171537c8d08021f1
                  if (this.valid) {
                      Bukkit.getPluginManager().callEvent(event);
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index 826abafd6bc03c31b743e326f8bf2e0aa78ab431..59ca454167e3642eeb85d7c413b2c7b4732d8053 100644
+index a1952dfeb1dd0572da5dbf2517ad8d7ba9183c50..ed720bd6c7710aa1139b3355fbd3d35116c5f579 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -85,7 +85,6 @@ import org.bukkit.Bukkit;
@@ -354,7 +354,7 @@ index 826abafd6bc03c31b743e326f8bf2e0aa78ab431..59ca454167e3642eeb85d7c413b2c7b4
                  if (!event.isCancelled()) {
                      merchantrecipe.addToSpecialPriceDiff(event.getBonus());
 diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
-index 8c496bc8516498c12ec07dc3ea185def06f35550..7cd77da3b1f197fa5ecc6c50dc85f6dd195c9a19 100644
+index 4b1035069fe493bfe63a8727afa2052374d0166c..7cd77da3b1f197fa5ecc6c50dc85f6dd195c9a19 100644
 --- a/src/main/java/net/minecraft/world/entity/player/Player.java
 +++ b/src/main/java/net/minecraft/world/entity/player/Player.java
 @@ -113,7 +113,6 @@ import net.minecraft.world.scores.Scoreboard;
@@ -374,16 +374,20 @@ index 8c496bc8516498c12ec07dc3ea185def06f35550..7cd77da3b1f197fa5ecc6c50dc85f6dd
              Item drop = (Item) entityitem.getBukkitEntity();
  
              PlayerDropItemEvent event = new PlayerDropItemEvent(player, drop);
-@@ -1152,7 +1151,7 @@ public abstract class Player extends LivingEntity {
+@@ -1151,7 +1150,11 @@ public abstract class Player extends LivingEntity {
+ 
                  f *= 0.2F + f2 * f2 * 0.8F;
                  f1 *= f2;
-                 // Paper start - PlayerAttackEntityCooldownResetEvent
--                if (new com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent((Player) this.getBukkitEntity(), entity.getBukkitEntity(), this.getCooledAttackStrength(0F)).callEvent()) {
+-                // this.ey(); // CraftBukkit - Moved to EntityLiving to reset the cooldown after the damage is dealt
++                // Paper start - PlayerAttackEntityCooldownResetEvent
 +                if (new com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent((org.bukkit.entity.Player) this.getBukkitEntity(), entity.getBukkitEntity(), this.getCooledAttackStrength(0F)).callEvent()) {
-                     this.resetCooldown(); // reset it like normal
-                 }
-                 // Paper end
-@@ -1250,7 +1249,7 @@ public abstract class Player extends LivingEntity {
++                    this.resetCooldown(); // reset it like normal
++                }
++                // Paper end
+                 if (f > 0.0F || f1 > 0.0F) {
+                     boolean flag = f2 > 0.9F;
+                     boolean flag1 = false;
+@@ -1246,7 +1249,7 @@ public abstract class Player extends LivingEntity {
                          if (entity instanceof ServerPlayer && entity.hurtMarked) {
                              // CraftBukkit start - Add Velocity Event
                              boolean cancelled = false;
@@ -392,7 +396,7 @@ index 8c496bc8516498c12ec07dc3ea185def06f35550..7cd77da3b1f197fa5ecc6c50dc85f6dd
                              org.bukkit.util.Vector velocity = CraftVector.toBukkit(vec3d);
  
                              PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
-@@ -1457,7 +1456,7 @@ public abstract class Player extends LivingEntity {
+@@ -1453,7 +1456,7 @@ public abstract class Player extends LivingEntity {
              bedResult = Either.right(Unit.INSTANCE);
          }
  
@@ -401,7 +405,7 @@ index 8c496bc8516498c12ec07dc3ea185def06f35550..7cd77da3b1f197fa5ecc6c50dc85f6dd
              bedResult = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerBedEnterEvent(this, blockposition, bedResult);
  
              if (bedResult.left().isPresent()) {
-@@ -1506,8 +1505,8 @@ public abstract class Player extends LivingEntity {
+@@ -1502,8 +1505,8 @@ public abstract class Player extends LivingEntity {
          }
  
          // CraftBukkit start - fire PlayerBedLeaveEvent
@@ -413,7 +417,7 @@ index 8c496bc8516498c12ec07dc3ea185def06f35550..7cd77da3b1f197fa5ecc6c50dc85f6dd
              org.bukkit.block.Block bed;
              if (bedPosition != null) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 6041f5b146494517bb01f496bb5ac56950fe18ca..bc94aa142d655062422764317ba27bb51c74839e 100644
+index 2ecd5856e2df3f65b5f8cc6410dcecb6c905b523..0b0f4e0b17e1946f8ee707ac8eca9b097476eed5 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -10,6 +10,7 @@ import com.google.common.base.MoreObjects;
@@ -424,7 +428,7 @@ index 6041f5b146494517bb01f496bb5ac56950fe18ca..bc94aa142d655062422764317ba27bb5
  import java.util.Iterator;
  import java.util.List;
  import java.util.Random;
-@@ -939,7 +940,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -950,7 +951,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      @Override
      public boolean noCollision(@Nullable Entity entity, AABB axisAlignedBB) {
          if (entity instanceof ArmorStand && !entity.level.paperConfig.armorStandEntityLookups) return false;

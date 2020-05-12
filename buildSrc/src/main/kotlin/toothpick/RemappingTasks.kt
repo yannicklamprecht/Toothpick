@@ -10,12 +10,14 @@ import org.cadixdev.mercury.Mercury
 import org.cadixdev.mercury.at.AccessTransformerRewriter
 import org.cadixdev.mercury.extra.BridgeMethodRewriter
 import org.cadixdev.mercury.remapper.MercuryRemapper
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
-import paper.runGitCmd
+import paper.*
 import stuff.taskGroupPrivate
+import java.io.File
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -109,6 +111,7 @@ fun initRemappingTasks(project: Project): List<Task> {
 
             ensureSuccess(cmd("git", "am", "--3way",  project.projectDir.resolve("toothpick/preremapping.patch").absolutePath, directory = paper))
 
+            // TODO fix me, we are losing paper-servers resources folder here
             if (Files.isDirectory(outputDir)) {
                 outputDir.toFile().deleteRecursively()
             }
@@ -170,6 +173,31 @@ fun initRemappingTasks(project: Project): List<Task> {
             }
             atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
             atlas.close()
+
+            ensureSuccess(cmd("mvn", "install:install-file", "-q", "-Dfile=${project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").absolutePath}", "-Dpackaging=jar", "-DgroupId=me.minidigger", "-DartifactId=minecraft-server", "-Dversion=\"$minecraftversion-SNAPSHOT\"", directory = project.projectDir))
+        }
+    }
+
+    val decompMapped: Task by project.tasks.creating {
+        group = taskGroupPrivate
+        doLast {
+            val classesFolder = project.projectDir.resolve("work/classes")
+            logger.lifecycle("Extracing classes...")
+            classesFolder.deleteRecursively()
+            classesFolder.mkdirs()
+            ensureSuccess(cmd("jar", "xf", project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").absolutePath, directory = classesFolder, printToStdout = true))
+
+            val decompFolder = project.projectDir.resolve("work/decomp")
+            decompFolder.deleteRecursively()
+            decompFolder.mkdirs()
+            logger.lifecycle("Decompiling classes...")
+            try {
+                ensureSuccess(cmd("java", "-jar", project.projectDir.resolve("work/Paper/work/BuildData/bin/fernflower.jar").absolutePath, "-dgs=1", "-hdc=0", "-asc=1", "-udv=0", "-rsy=1", "-aoa=1", classesFolder.absolutePath, decompFolder.absolutePath, directory = project.rootDir, printToStdout = true))
+            } catch (e: IllegalStateException) {
+                decompFolder.deleteRecursively()
+                throw GradleException("Failed to decompile classes.", e)
+
+            }
         }
     }
 
