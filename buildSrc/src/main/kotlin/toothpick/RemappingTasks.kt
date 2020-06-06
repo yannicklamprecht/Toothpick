@@ -109,7 +109,7 @@ fun initRemappingTasks(project: Project): List<Task> {
                 ensureSuccess(cmd("git", "clone", paper.absolutePath, remapped.absolutePath, directory = project.projectDir))
             }
 
-            ensureSuccess(cmd("git", "am", "--3way",  project.projectDir.resolve("toothpick/preremapping.patch").absolutePath, directory = paper))
+            ensureSuccess(cmd("git", "am", "--3way", project.projectDir.resolve("toothpick/preremapping.patch").absolutePath, directory = paper))
 
             // TODO fix me, we are losing paper-servers resources folder here
             if (Files.isDirectory(outputDir)) {
@@ -132,7 +132,9 @@ fun initRemappingTasks(project: Project): List<Task> {
 
             project.subprojects.filter { p -> p.name == "fake" }.forEach { p ->
                 p.configurations.filter { config -> config.isCanBeResolved }.forEach { config ->
-                    config.resolvedConfiguration.files.filter { file -> !file.absolutePath.contains("build\\classes") }.forEach { file ->
+                    config.resolvedConfiguration.files.filter { file ->
+                        !file.absolutePath.contains("build\\classes") || file.absolutePath.contains("build/classes")
+                    }.forEach { file ->
                         mercury.classPath.add(file.toPath())
                     }
                 }

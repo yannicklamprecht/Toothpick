@@ -91,6 +91,7 @@ fun Project.initToothPickTasks() = run {
                 // Nuke old patches
                 patchesDir.listFiles()
                         ?.filter { it.name.endsWith(".patch") }
+                        ?.sorted()
                         ?.forEach { it.delete() }
 
                 // And generate new
@@ -119,15 +120,15 @@ fun Project.initToothPickTasks() = run {
         doLast {
             for ((_, stuff) in toothPick.subProjects) {
                 val (_, projectDir, _) = stuff
-                logger.lifecycle("Deleating $projectDir...")
+                logger.lifecycle("Deleting $projectDir...")
                 projectDir.deleteRecursively()
             }
             val upstreamDir = File(rootProject.projectDir, toothPick.upstreamName)
-            logger.lifecycle("Deleating $upstreamDir...")
+            logger.lifecycle("Deleting $upstreamDir...")
             upstreamDir.deleteRecursively()
 
             val workDir = File(rootProject.projectDir, "work")
-            logger.lifecycle("Deleating $workDir...")
+            logger.lifecycle("Deleting $workDir...")
             upstreamDir.deleteRecursively()
         }
     }
