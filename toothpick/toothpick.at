@@ -45,12 +45,14 @@ public net.minecraft.server.NetworkManager queueImmunity
 public net.minecraft.server.PlayerConnection playerJoinReady
 public net.minecraft.server.NetworkManager isPending
 public net.minecraft.server.Entity isLegacyTrackingEntity
+public net.minecraft.server.Entity collisionLoadChunks
 public-f net.minecraft.server.PacketPlayOutPlayerInfo b
 public-f net.minecraft.server.PacketPlayOutPlayerInfo$PlayerInfoData b
 public-f net.minecraft.server.PacketPlayOutPlayerInfo$PlayerInfoData c
 public-f net.minecraft.server.PacketPlayOutPlayerInfo$PlayerInfoData d
 public-f net.minecraft.server.PacketPlayOutPlayerInfo$PlayerInfoData e
 public net.minecraft.server.PacketPlayOutChat a
+public net.minecraft.server.VillagePlaceType professionCache
 # methods
 public net.minecraft.server.PlayerInventory getComponents()Ljava/util/List;
 public net.minecraft.server.EntityHuman releaseShoulderEntities()V;
@@ -73,3 +75,6 @@ public net.minecraft.server.PlayerChunkMap getUpdatingChunk(J)Lnet/minecraft/ser
 public net.minecraft.server.PlayerChunkMap sendChunk(Lnet/minecraft/server/EntityPlayer;[Lnet/minecraft/server/Packet;Lnet/minecraft/server/Chunk;)V
 public net.minecraft.server.Entity getPlayersInTrackRange()Lcom/destroystokyo/paper/util/misc/PooledLinkedHashSets$PooledObjectLinkedOpenHashSet;
 public net.minecraft.server.PlayerList getActivePlayer(Ljava/util/UUID;)Lnet/minecraft/server/EntityPlayer;
+public net.minecraft.server.NavigationAbstract a(Ljava/util/Set;IZI)Lnet/minecraft/server/PathEntity;
+public net.minecraft.server.RegionFileSection getSection(J)Ljava/util/Optional;
+public net.minecraft.server.VillagePlaceRecord decreaseVacancy()Z

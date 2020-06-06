@@ -10,6 +10,7 @@ import stuff.taskGroupPrivate
 import stuff.taskGroupPublic
 import toothpick.initRemappingTasks
 import java.io.File
+import dumstuff.dumShitTasks
 
 fun Project.initToothPickTasks() = run {
     val initGitSubmodules: Task by project.tasks.creating {
@@ -131,5 +132,7 @@ fun Project.initToothPickTasks() = run {
         }
     }
     cleanUp.name
+
+    dumShitTasks(project)[0].name
 
 }

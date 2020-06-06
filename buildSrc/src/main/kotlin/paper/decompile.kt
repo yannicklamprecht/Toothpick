@@ -79,7 +79,7 @@ fun decompile(project: Project): Task {
                 if (!destFile.exists()) {
                     logger.lifecycle("Extracting $group:$lib Sources")
                     destFile.mkdirs()
-                    ensureSuccess(cmd("jar", "xf", "$jarPath", directory = destFile, printToStdout = true))
+                    ensureSuccess(cmd("jar", "xf", jarPath, directory = destFile, printToStdout = true))
                 }
             }
         }
