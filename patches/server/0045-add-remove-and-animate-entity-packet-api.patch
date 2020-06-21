@@ -1,0 +1,125 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Sat, 13 Jun 2020 15:53:45 +0200
+Subject: [PATCH] add remove and animate entity packet api
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java
+index c98965425d53ac0bffe531e832c64fdb1f5238d9..1f4869ff1c35834b7765139d3f041718ea79be9e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java
++++ b/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java
+@@ -29,5 +29,11 @@ public abstract class AbstractPacketStep implements PacketStep {
+         ((CraftPlayer)player).getHandle().connection.sendPacket(packet);
+     }
+ 
++    protected void sendPacket(Collection<?extends Player> players, Packet<?> packet){
++        for (Player player: players){
++            sendPacket(player, packet);
++        }
++    }
++
+     protected abstract void executeStep(Collection<? extends Player> players);
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java
+index d46d2ee4ddf270a6af05f73acb68926d4e3eb21a..d99bf9bd961185674e1e3fb7daf523e7992ec655 100644
+--- a/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java
++++ b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java
+@@ -1,6 +1,7 @@
+ package org.bukkit.craftbukkit.packet;
+ 
+ import net.minecraft.world.scores.Scoreboard;
++import org.apache.commons.lang.RandomStringUtils;
+ import org.bukkit.craftbukkit.scoreboard.CraftScoreboard;
+ import org.bukkit.entity.Player;
+ import org.bukkit.packet.PacketPipeline;
+@@ -27,4 +28,9 @@ public class CraftPacketPipeline implements PacketPipeline {
+         CraftScoreboard craftScoreboard = new CraftScoreboard(scoreboard);
+         return craftScoreboard.registerNewTeam(name);
+     }
++
++    @Override
++    public String generateRandomString(int count, boolean letters, boolean numbers) {
++        return RandomStringUtils.random(count, letters, numbers);
++    }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java
+index 1984ae6b1daa857a32314430afd5c347a3e37d34..4fa8afb6970d077466a3863d36ac4e082ab683c7 100644
+--- a/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java
++++ b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java
+@@ -88,6 +88,18 @@ public class CraftPacketStepBuilder implements PacketStepBuilder {
+         return this;
+     }
+ 
++    @Override
++    public PacketStepBuilder removeEntity(int entityId) {
++        initial.setNext(new RemoveEntityPacketStep(entityId));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder animateEntity(int entityId, PacketOptions.Animation animation) {
++        initial.setNext(new AnimateEntityPacketStep(entityId,animation));
++        return this;
++    }
++
+     @Override
+     public PacketStep build() {
+         return initial;
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/AnimateEntityPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/AnimateEntityPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..2cfc7d90527bbf4ee0099f150fcb7319383823fb
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/AnimateEntityPacketStep.java
+@@ -0,0 +1,23 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++import org.bukkit.packet.PacketOptions;
++
++import java.util.Collection;
++
++public class AnimateEntityPacketStep extends AbstractPacketStep {
++
++    private final ClientboundAnimatePacket animatePacket;
++    public AnimateEntityPacketStep(int entityId, PacketOptions.Animation animation) {
++        this.animatePacket = new ClientboundAnimatePacket();
++        this.animatePacket.id = entityId;
++        this.animatePacket.action = animation.getAction();
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        sendPacket(players, animatePacket);
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/RemoveEntityPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/RemoveEntityPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..db412ae2b83df1d22d880c4b0050077e86e2aec6
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/RemoveEntityPacketStep.java
+@@ -0,0 +1,23 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.Collection;
++
++public class RemoveEntityPacketStep extends AbstractPacketStep {
++
++    private final ClientboundRemoveEntitiesPacket removeEntity;
++
++    public RemoveEntityPacketStep(int entityId) {
++        removeEntity = new ClientboundRemoveEntitiesPacket(entityId);
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, removeEntity);
++        }
++    }
++}

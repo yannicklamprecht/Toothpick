@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Wed, 10 Jun 2020 23:03:38 +0200
+Subject: [PATCH] removed obfuscation helper
+
+
+diff --git a/src/main/java/net/minecraft/core/SectionPos.java b/src/main/java/net/minecraft/core/SectionPos.java
+index 59b2adbf423c257c321abe6f64c3b0051bc277ef..29af31be9f093e80bcca010ef2d7434c34f7ca95 100644
+--- a/src/main/java/net/minecraft/core/SectionPos.java
++++ b/src/main/java/net/minecraft/core/SectionPos.java
+@@ -114,7 +114,6 @@ public class SectionPos extends Vec3i {
+         return (z << 4) + 15; // Paper
+     }
+ 
+-    public static long blockToSection(long i) { return blockToSection(i); } // Paper - OBFHELPER
+     public static long blockToSection(long i) {
+         // b(a(BlockPosition.b(i)), a(BlockPosition.c(i)), a(BlockPosition.d(i)));
+         return (((long) (int) (i >> 42) & 4194303L) << 42) | (((long) (int) ((i << 52) >> 56) & 1048575L)) | (((long) (int) ((i << 26) >> 42) & 4194303L) << 20); // Simplify to reduce instruction count
+@@ -143,7 +142,6 @@ public class SectionPos extends Vec3i {
+         return (((long) (i >> 4) & 4194303L) << 42) | (((long) (j >> 4) & 1048575L)) | (((long) (k >> 4) & 4194303L) << 20);
+     }
+     // Paper end
+-    public static long asLong(int i, int j, int k) { return asLong(i, j, k); } // Paper - OBFHELPER
+     public static long asLong(int i, int j, int k) {
+         return (((long) i & 4194303L) << 42) | (((long) j & 1048575L)) | (((long) k & 4194303L) << 20); // Paper - Simplify to reduce instruction count
+     }
+diff --git a/src/main/java/net/minecraft/world/level/block/Block.java b/src/main/java/net/minecraft/world/level/block/Block.java
+index 8594d40106265517d24a70882f012b6de20220c1..994f64142c7f35084d4dfa377558f330ccc12d5e 100644
+--- a/src/main/java/net/minecraft/world/level/block/Block.java
++++ b/src/main/java/net/minecraft/world/level/block/Block.java
+@@ -367,7 +367,6 @@ public class Block implements ItemLike {
+         return false;
+     }
+ 
+-    public final boolean canOcclude(BlockState blockData) { return canOcclude(blockData); } @Deprecated // Paper - OBFHELPER
+     public final boolean canOcclude(BlockState iblockdata) {
+         return this.canOcclude;
+     }
+diff --git a/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java b/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java
+index 098da4f8b7459f0c7dd9582417f86e54e23f8271..7efa10a402b50d35b1e81b0e963266febff13ace 100644
+--- a/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java
++++ b/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java
+@@ -24,7 +24,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
+     protected final LightLayer layer;
+     protected final S storage;
+     private boolean runningLightUpdates;
+-    protected final BlockPos.MutableBlockPosition pos = new BlockPos.MutableBlockPosition(); protected final BlockPos.MutableBlockPosition pos = pos; // Paper
++    protected final BlockPos.MutableBlockPosition pos = new BlockPos.MutableBlockPosition();
+     private final long[] lastChunkPos = new long[2];
+     private final ChunkAccess[] lastChunk = new ChunkAccess[2]; // Paper
+ 

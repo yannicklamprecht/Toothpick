@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Sat, 13 Jun 2020 15:48:51 +0200
+Subject: [PATCH] add remove and animate entity packet api
+
+
+diff --git a/src/main/java/org/bukkit/packet/PacketOptions.java b/src/main/java/org/bukkit/packet/PacketOptions.java
+index 49f951f4b54bfdbae8b5d17ba05841dd627e4c06..01b515595b4a980d74d62fb334dc17b4ef872dd5 100644
+--- a/src/main/java/org/bukkit/packet/PacketOptions.java
++++ b/src/main/java/org/bukkit/packet/PacketOptions.java
+@@ -27,4 +27,23 @@ public class PacketOptions {
+         UPDATE_DISPLAY_NAME,
+         REMOVE_PLAYER;
+     }
++
++    public enum Animation {
++        SWING_MAIN_ARM(0),
++        TAKE_DAMAGE(1),
++        LEAVE_BED(2),
++        SWING_OFFHAND(3),
++        CRITICAL_EFFECT(4),
++        MAGIC_CRITICAL_EFFECT(5);
++
++        private final int action;
++
++        Animation(int action) {
++            this.action = action;
++        }
++
++        public int getAction() {
++            return action;
++        }
++    }
+ }
+diff --git a/src/main/java/org/bukkit/packet/PacketPipeline.java b/src/main/java/org/bukkit/packet/PacketPipeline.java
+index 8c59e55a73e62fa5ae4c61da2909f45b5e17a298..2f304ed3f1773fc5b4a9055fbf10db19b168ee14 100644
+--- a/src/main/java/org/bukkit/packet/PacketPipeline.java
++++ b/src/main/java/org/bukkit/packet/PacketPipeline.java
+@@ -12,4 +12,6 @@ public interface PacketPipeline {
+     void send(PacketStepBuilder packetStepBuilder, Collection<? extends Player> players);
+ 
+     Team createTeam(@NotNull String name);
++
++    String generateRandomString(int count, boolean letters, boolean numbers);
+ }
+diff --git a/src/main/java/org/bukkit/packet/PacketStepBuilder.java b/src/main/java/org/bukkit/packet/PacketStepBuilder.java
+index 20ac94effb5a82aacc283e48780bc2baf4948bd9..4c60ecd2b5912b35d2a15f794ca4b6e77e4adf0e 100644
+--- a/src/main/java/org/bukkit/packet/PacketStepBuilder.java
++++ b/src/main/java/org/bukkit/packet/PacketStepBuilder.java
+@@ -33,5 +33,9 @@ public interface PacketStepBuilder {
+ 
+     PacketStepBuilder custom(PacketStep packetStep);
+ 
++    PacketStepBuilder removeEntity(int entityId);
++
++    PacketStepBuilder animateEntity(int entityId, PacketOptions.Animation animation);
++
+     PacketStep build();
+ }

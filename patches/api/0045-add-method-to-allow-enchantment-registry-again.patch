@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Sat, 13 Jun 2020 15:47:52 +0200
+Subject: [PATCH] add method to allow enchantment registry again
+
+
+diff --git a/src/main/java/org/bukkit/enchantments/Enchantment.java b/src/main/java/org/bukkit/enchantments/Enchantment.java
+index d1885f178f0b307cdbb08d4fda1ab9cd53f97bc9..2e8c1e663f92a2da5133b539c9331dab786a1bb7 100644
+--- a/src/main/java/org/bukkit/enchantments/Enchantment.java
++++ b/src/main/java/org/bukkit/enchantments/Enchantment.java
+@@ -349,6 +349,13 @@ public abstract class Enchantment implements Keyed {
+         acceptingNew = false;
+     }
+ 
++    /**
++     * Starts accepting any enchantment registrations
++     */
++    public static void startAcceptingRegistrations() {
++        acceptingNew = true;
++    }
++
+     /**
+      * Gets the Enchantment at the specified key
+      *

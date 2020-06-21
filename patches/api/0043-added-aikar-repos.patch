@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gerolmed <werwolf420@yahoo.de>
+Date: Fri, 12 Jun 2020 16:44:10 +0200
+Subject: [PATCH] added aikar repos
+
+
+diff --git a/pom.xml b/pom.xml
+index 9703e1e5139daa8c342e3c4ca6ea7eee772bb779..e3e6df7ace7a925d70266675adf4840e393fb17b 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -31,6 +31,14 @@
+ 
+             Please see https://www.spigotmc.org/go/maven for more information.
+         -->
++        <repository>
++            <id>aikar</id>
++            <url>https://repo.aikar.co/nexus/content/groups/aikar/com/</url>
++        </repository>
++        <repository>
++            <id>cleaner</id>
++            <url>https://repo.aikar.co/content/groups/aikar/</url>
++        </repository>
+         <repository>
+             <id>spigotmc-public</id>
+             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>

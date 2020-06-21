@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Wed, 10 Jun 2020 23:54:43 +0200
+Subject: [PATCH] fix accessibility of distance manager
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index 8673cf6111bda494232b530a3a370725e1161fdb..6b0d5a39f3d6efc4610a5bcb31cb28def7cfe7c5 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -2453,7 +2453,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+         }
+     }
+ 
+-    class DistanceManagerOH extends DistanceManager {
++    public class DistanceManagerOH extends DistanceManager {
+ 
+         protected DistanceManagerOH(Executor executor, Executor executor1) {
+             super(executor, executor1);

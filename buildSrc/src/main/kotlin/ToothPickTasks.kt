@@ -8,6 +8,8 @@ import paper.init
 import paper.remap
 import stuff.taskGroupPrivate
 import stuff.taskGroupPublic
+import stuff.repoUrl
+import stuff.repoId
 import toothpick.initRemappingTasks
 import java.io.File
 import dumstuff.dumShitTasks
@@ -64,6 +66,7 @@ fun Project.initToothPickTasks() = run {
                 // Apply patches
                 val patches = patchesDir.listFiles()
                         ?.filter { it.name.endsWith(".patch") }
+                        ?.sortedWith(naturalOrder())
                         ?.takeIf { it.isNotEmpty() } ?: continue
 
                 logger.lifecycle(">>> Applying patches to $name")
@@ -135,5 +138,38 @@ fun Project.initToothPickTasks() = run {
     cleanUp.name
 
     dumShitTasks(project)[0].name
+
+
+    val installLocalMaven: Task by tasks.creating {
+        group = taskGroupPublic
+        doLast {
+            for ((_, stuff) in toothPick.subProjects) {
+                val (_, projectDir, _) = stuff
+                logger.lifecycle("Installing into local maven $projectDir...")
+                projectDir.resolve("build/libs").listFiles { file -> file.name.endsWith(".jar") }?.forEach {
+                    file -> kotlin.runCatching {
+                    cmd("mvn", "install:install-file", "-Dfile="+file.toPath().toString(), "-DpomFile="+ projectDir.resolve("pom.xml").toString(), directory = projectDir)
+                }
+                }
+            }
+        }
+    }
+    installLocalMaven.name
+
+    val deployMaven: Task by tasks.creating {
+        group = taskGroupPublic
+        doLast {
+            for ((_, stuff) in toothPick.subProjects) {
+                val (_, projectDir, _) = stuff
+                logger.lifecycle("Installing into local maven $projectDir...")
+                projectDir.resolve("build/libs").listFiles { file -> file.name.endsWith(".jar") }?.forEach {
+                    file -> kotlin.runCatching {
+                    cmd("mvn", "deploy:deploy-file", "-DrepositoryId=$repoId", "-Durl=$repoUrl","-Dfile=${file.toPath()}", "-DpomFile=${projectDir.resolve("pom.xml")}", directory = projectDir)
+                }
+                }
+            }
+        }
+    }
+    deployMaven.name
 
 }

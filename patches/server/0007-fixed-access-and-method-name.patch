@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Sun, 21 Jun 2020 16:18:34 +0200
+Subject: [PATCH] fixed access and method name
+
+
+diff --git a/src/main/java/net/minecraft/world/level/chunk/DataLayer.java b/src/main/java/net/minecraft/world/level/chunk/DataLayer.java
+index cb7653f2b4bd1f62fccd5ea481858b874f27ca45..92bd49035f382b7985471492a678619e0fa24701 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/DataLayer.java
++++ b/src/main/java/net/minecraft/world/level/chunk/DataLayer.java
+@@ -10,13 +10,13 @@ import net.minecraft.server.MCUtil;
+ public class DataLayer {
+ 
+     // Paper start
+-    static final DataLayer EMPTY_NIBBLE_ARRAY = new DataLayer() {
++    public static final DataLayer EMPTY_NIBBLE_ARRAY = new DataLayer() {
+         @Override
+         public byte[] getData() {
+             throw new IllegalStateException();
+         }
+     };
+-    long lightCacheKey = Long.MIN_VALUE;
++    public long lightCacheKey = Long.MIN_VALUE;
+     public static byte[] EMPTY_NIBBLE = new byte[2048];
+     private static final int nibbleBucketSizeMultiplier = Integer.getInteger("Paper.nibbleBucketSize", 3072);
+     private static final int maxPoolSize = Integer.getInteger("Paper.maxNibblePoolSize", (int) Math.min(6, Math.max(1, Runtime.getRuntime().maxMemory() / 1024 / 1024 / 1024)) * (nibbleBucketSizeMultiplier * 8));
+diff --git a/src/main/java/net/minecraft/world/level/storage/loot/functions/ExplorationMapFunction.java b/src/main/java/net/minecraft/world/level/storage/loot/functions/ExplorationMapFunction.java
+index 4174858d8a76fc3d3123d9fd63935c7b291e96fc..ce5639aca7ece54885a03c531740ed263f1acecf 100644
+--- a/src/main/java/net/minecraft/world/level/storage/loot/functions/ExplorationMapFunction.java
++++ b/src/main/java/net/minecraft/world/level/storage/loot/functions/ExplorationMapFunction.java
+@@ -118,7 +118,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
+         }
+ 
+         @Override
+-        public ExplorationMapFunction b(JsonObject jsonobject, JsonDeserializationContext jsondeserializationcontext, LootItemCondition[] alootitemcondition) {
++        public ExplorationMapFunction deserialize(JsonObject jsonobject, JsonDeserializationContext jsondeserializationcontext, LootItemCondition[] alootitemcondition) {
+             String s = jsonobject.has("destination") ? GsonHelper.getAsString(jsonobject, "destination") : "Buried_Treasure";
+ 
+             s = Feature.STRUCTURES_REGISTRY.containsKey(s.toLowerCase(Locale.ROOT)) ? s : "Buried_Treasure";
+@@ -155,7 +155,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
+         }
+ 
+         @Override
+-        protected ExplorationMapFunction.Builder d() {
++        protected ExplorationMapFunction.Builder getThis() {
+             return this;
+         }
+ 

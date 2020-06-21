@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Fri, 12 Jun 2020 21:14:31 +0200
+Subject: [PATCH] added aikar repo for cleaner
+
+
+diff --git a/pom.xml b/pom.xml
+index 30aeb4d25d7870df95fb6fc8a49479dc749e980e..b061fd91d134b979c841aedeb2f473334738e556 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -150,6 +150,10 @@
+ 
+             Please see https://www.spigotmc.org/go/maven for more information.
+         -->
++        <repository>
++            <id>cleaner</id>
++            <url>https://repo.aikar.co/content/groups/aikar/</url>
++        </repository>
+         <repository>
+             <id>spigotmc-public</id>
+             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>

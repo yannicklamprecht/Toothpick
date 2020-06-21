@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Wed, 10 Jun 2020 20:51:24 +0200
+Subject: [PATCH] change group id
+
+
+diff --git a/pom.xml b/pom.xml
+index 20c473f521e50df57065d3644398f9db777c1a24..9703e1e5139daa8c342e3c4ca6ea7eee772bb779 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -8,7 +8,7 @@
+         <version>dev-SNAPSHOT</version>
+     </parent>
+ 
+-    <groupId>com.destroystokyo.paper</groupId>
++    <groupId>net.endrealm.paper</groupId>
+     <artifactId>paper-api</artifactId>
+     <version>1.15.2-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>

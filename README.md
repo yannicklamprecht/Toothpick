@@ -27,23 +27,43 @@ You can run those in both windows and linux env, but you shouldn't fix and match
 
 ### Steps for building
 
-Pre-requirements
-- JDK-1.8
-- JDK-11+
-- Maven (and Gradle)
-- setup JAVA_HOME
+    Pre-requirements
+    - JDK-1.8
+    - JDK-11+
+    - Maven (and Gradle)
+    - setup JAVA_HOME
 
 1. `git clone https://github.com/CadixDev/Atlas` (could require JDK-1.8 for compiling)
-1. `cd Atlas && ./gradlew build install`
-1. `git clone https://github.com/CadixDev/Lorenz/` (could require JDK-1.8 for compiling)
-1. `git checkout fix/mercury-14`
-1. `cd Mercury/ && ./gradlew build install`
-1. After building the dependencies `git clone https://github.com/MiniDigger/Toothpick` (requires JDK-11+ for compiling)
-1. run (under Windows use `./gradle.bat` instead of `./gradlew`) 
+2. `cd Atlas && ./gradlew build install`
+3. `git clone https://github.com/CadixDev/Lorenz/` (could require JDK-1.8 for compiling)
+4. `git checkout fix/mercury-14`
+5. `cd Mercury/ && ./gradlew build install`
+6. After building the dependencies `git clone https://github.com/MiniDigger/Toothpick` (requires JDK-11+ for compiling)
+7. run (under Windows use `./gradle.bat` instead of `./gralew` 
     1. `./gradlew setupUpstream`
-    1. `./gradlew mojangMappings`
-    1. `./gradlew applyPatches`
-    1. `./gradlew shadowJar`
+    2. `./gradlew mojangMappings`
+    3. `./gradlew applyPatches`
+    4. `./gradlew shadowJar`
+
+### maven local install
+
+ 1. Execute `./gradlew installLocalMaven` after step 7.4 in [Steps for building](#steps-for-building) 
+
+### maven repo deploy
+
+ *Requirements*
+  
+- having a valid `settings.xml` in the `~/.m2/`
+
+1. Modify the constants in `src/main/kotlin/stuff/Constants.kt`
+
+    ```
+    const val repoId = "01"
+    const val repoUrl = "https://nexus.server-project.net/repository/maven-snapshots/"
+    ```
+2. Execute `./gradlew deployMaven` after step 7.4 in [Steps for building](#steps-for-building)
+
+
 
 ## License
 

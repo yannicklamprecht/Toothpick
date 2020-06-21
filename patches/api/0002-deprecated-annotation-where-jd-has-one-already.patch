@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Wed, 27 May 2020 22:01:58 +0200
+Subject: [PATCH] deprecated annotation where jd has one already
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java b/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java
+index 8b1fdb9d2869d4c1862d557c91bf8a1d8c537507..626e97bbcaa19d55475a0fc8770412d437af2733 100644
+--- a/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java
++++ b/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java
+@@ -8,6 +8,7 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
+ /**
+  * @deprecated Use {@link PlayerSpawnLocationEvent}, Duplicate API
+  */
++@Deprecated
+ public class PlayerInitialSpawnEvent extends PlayerSpawnLocationEvent {
+ 
+     public PlayerInitialSpawnEvent(@NotNull Player who, @NotNull Location spawnLocation) {
+diff --git a/src/main/java/org/bukkit/entity/LingeringPotion.java b/src/main/java/org/bukkit/entity/LingeringPotion.java
+index f124b35ec76e6cb6a1a0dc464005087043c3efd0..bafef53c1d449135f1300c8c8fbb06f482ba67e1 100644
+--- a/src/main/java/org/bukkit/entity/LingeringPotion.java
++++ b/src/main/java/org/bukkit/entity/LingeringPotion.java
+@@ -5,4 +5,5 @@ package org.bukkit.entity;
+  *
+  * @deprecated lingering status depends on only on the potion item.
+  */
++@Deprecated
+ public interface LingeringPotion extends ThrownPotion { }
+diff --git a/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java b/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java
+index 2ff1b1308571d8f8056d3359e8a8ba4a589c3726..abd58845830abc15416d756480f11868b23c92ba 100644
+--- a/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java
++++ b/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java
+@@ -68,7 +68,7 @@ public class PrepareItemEnchantEvent extends InventoryEvent implements Cancellab
+      * @return experience level costs offered
+      * @deprecated Use {@link #getOffers()} instead of this method
+      */
+-    @NotNull
++    @NotNull @Deprecated
+     public int[] getExpLevelCostsOffered() {
+         int[] levelOffers = new int[offers.length];
+         for (int i = 0; i < offers.length; i++) {
+diff --git a/src/main/java/org/bukkit/material/Step.java b/src/main/java/org/bukkit/material/Step.java
+index 9f502e7ee05d0512e190a1722cc112ece068c4e2..f19f89c939ed3eef1cae37117f82ee8ec3ada757 100644
+--- a/src/main/java/org/bukkit/material/Step.java
++++ b/src/main/java/org/bukkit/material/Step.java
+@@ -78,7 +78,7 @@ public class Step extends TexturedMaterial {
+      *
+      * @deprecated Magic value
+      */
+-    @Override
++    @Override @Deprecated
+     protected int getTextureIndex() {
+         return getData() & 0x7;
+     }

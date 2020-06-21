@@ -1,0 +1,609 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Thu, 11 Jun 2020 18:15:46 +0200
+Subject: [PATCH] added packet support
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 324f127ba2d92ff2ae8ba4cf765e2fd9b4f7e2ac..a5ffeedc5f2f4f627ca7ac7117a37ebe99292375 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -101,6 +101,7 @@ import org.bukkit.craftbukkit.map.CraftMapView;
+ import org.bukkit.craftbukkit.metadata.EntityMetadataStore;
+ import org.bukkit.craftbukkit.metadata.PlayerMetadataStore;
+ import org.bukkit.craftbukkit.metadata.WorldMetadataStore;
++import org.bukkit.craftbukkit.packet.CraftPacketPipeline;
+ import org.bukkit.craftbukkit.potion.CraftPotionBrewer;
+ import org.bukkit.craftbukkit.scheduler.CraftScheduler;
+ import org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager;
+@@ -141,6 +142,7 @@ import org.bukkit.inventory.SmokingRecipe;
+ import org.bukkit.inventory.StonecuttingRecipe;
+ import org.bukkit.loot.LootTable;
+ import org.bukkit.map.MapView;
++import org.bukkit.packet.PacketPipeline;
+ import org.bukkit.permissions.Permissible;
+ import org.bukkit.permissions.Permission;
+ import org.bukkit.plugin.Plugin;
+@@ -157,6 +159,7 @@ import org.bukkit.potion.PotionEffectType;
+ import org.bukkit.scheduler.BukkitWorker;
+ import org.bukkit.util.StringUtil;
+ import org.bukkit.util.permissions.DefaultPermissions;
++import org.jetbrains.annotations.NotNull;
+ import org.yaml.snakeyaml.Yaml;
+ import org.yaml.snakeyaml.constructor.SafeConstructor;
+ import org.yaml.snakeyaml.error.MarkedYAMLException;
+@@ -221,6 +224,7 @@ public final class CraftServer implements Server {
+     private final EntityMetadataStore entityMetadata = new EntityMetadataStore();
+     private final PlayerMetadataStore playerMetadata = new PlayerMetadataStore();
+     private final WorldMetadataStore worldMetadata = new WorldMetadataStore();
++    private final PacketPipeline packetPipeline = new CraftPacketPipeline();
+     private int monsterSpawn = -1;
+     private int animalSpawn = -1;
+     private int waterAnimalSpawn = -1;
+@@ -2266,5 +2270,10 @@ public final class CraftServer implements Server {
+     public com.destroystokyo.paper.entity.ai.MobGoals getMobGoals() {
+         return mobGoals;
+     }
++
++    @Override
++    public @NotNull PacketPipeline getPacketPipeline() {
++        return packetPipeline;
++    }
+     // Paper end
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c98965425d53ac0bffe531e832c64fdb1f5238d9
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/AbstractPacketStep.java
+@@ -0,0 +1,33 @@
++package org.bukkit.craftbukkit.packet;
++
++import net.minecraft.network.protocol.Packet;
++import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.entity.Player;
++import org.bukkit.packet.PacketStep;
++
++import java.util.Collection;
++
++public abstract class AbstractPacketStep implements PacketStep {
++    private PacketStep next;
++
++    public void setNext(PacketStep next) {
++        if(this.next == null){
++            this.next = next;
++        } else {
++            this.next.setNext(next);
++        }
++    }
++
++    public final void execute(Collection<? extends Player> players) {
++        executeStep(players);
++        if (next != null) {
++            next.execute(players);
++        }
++    }
++
++    protected void sendPacket(Player player, Packet<?> packet){
++        ((CraftPlayer)player).getHandle().connection.sendPacket(packet);
++    }
++
++    protected abstract void executeStep(Collection<? extends Player> players);
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d46d2ee4ddf270a6af05f73acb68926d4e3eb21a
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketPipeline.java
+@@ -0,0 +1,30 @@
++package org.bukkit.craftbukkit.packet;
++
++import net.minecraft.world.scores.Scoreboard;
++import org.bukkit.craftbukkit.scoreboard.CraftScoreboard;
++import org.bukkit.entity.Player;
++import org.bukkit.packet.PacketPipeline;
++import org.bukkit.packet.PacketStepBuilder;
++import org.bukkit.scoreboard.Team;
++import org.jetbrains.annotations.NotNull;
++
++import java.util.Collection;
++
++public class CraftPacketPipeline implements PacketPipeline {
++    @Override
++    public PacketStepBuilder create() {
++        return new CraftPacketStepBuilder();
++    }
++
++    @Override
++    public void send(PacketStepBuilder packetStepBuilder, Collection<? extends Player> players) {
++        packetStepBuilder.build().execute(players);
++    }
++
++    @Override
++    public Team createTeam(@NotNull String name) {
++        Scoreboard scoreboard = new Scoreboard();
++        CraftScoreboard craftScoreboard = new CraftScoreboard(scoreboard);
++        return craftScoreboard.registerNewTeam(name);
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1984ae6b1daa857a32314430afd5c347a3e37d34
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/CraftPacketStepBuilder.java
+@@ -0,0 +1,95 @@
++package org.bukkit.craftbukkit.packet;
++
++import com.destroystokyo.paper.profile.PlayerProfile;
++import org.bukkit.Location;
++import org.bukkit.block.data.BlockData;
++import org.bukkit.craftbukkit.packet.steps.*;
++import org.bukkit.entity.Player;
++import org.bukkit.inventory.EquipmentSlot;
++import org.bukkit.inventory.ItemStack;
++import org.bukkit.packet.PacketOptions;
++import org.bukkit.packet.PacketStep;
++import org.bukkit.packet.PacketStepBuilder;
++import org.bukkit.plugin.java.JavaPlugin;
++import org.bukkit.scoreboard.Team;
++
++import java.util.Collection;
++import java.util.UUID;
++import java.util.concurrent.TimeUnit;
++
++public class CraftPacketStepBuilder implements PacketStepBuilder {
++
++    private final PacketStep initial = new EmptyPacketStep();
++
++    @Override
++    public PacketStepBuilder sendPlayerProfile(PlayerProfile playerProfile, PacketOptions.ProfileAction profileAction) {
++        initial.setNext(new ProfilePacketStep(playerProfile, profileAction));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder spawnPlayer(int entityId, UUID uuid, Location location) {
++        initial.setNext(new SpawnPlayerPacketStep(entityId, uuid, location));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder setPlayerTeam(Team team, PacketOptions.TeamMode teamMode) {
++        initial.setNext(new SetTeamPacketStep(team, teamMode));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder teleportEntity(int entityId, Location location, boolean onGround) {
++        initial.setNext(new TeleportEntityPacketStep(entityId, location, onGround));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder sendBlockChange(Location location, BlockData blockData) {
++        initial.setNext(new AbstractPacketStep() {
++            @Override
++            protected void executeStep(Collection<? extends Player> players) {
++                for (Player player : players) {
++                    player.sendBlockChange(location, blockData);
++                }
++            }
++        });
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder sleepAt(int entityId, Location location) {
++        initial.setNext(new SleepAtPacketStep(entityId, location));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder rotateHead(int entityId, float yaw) {
++        initial.setNext(new RotateHeadStep(entityId, yaw));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder setEquipmentItem(int entityId, EquipmentSlot equipmentSlot, ItemStack itemStack) {
++        initial.setNext(new SetEquipmentPacketStep(entityId, equipmentSlot, itemStack));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder delay(JavaPlugin javaPlugin, long time, TimeUnit timeUnit) {
++        initial.setNext(new DelayPacketStep(javaPlugin, time, timeUnit));
++        return this;
++    }
++
++    @Override
++    public PacketStepBuilder custom(PacketStep packetStep) {
++        initial.setNext(packetStep);
++        return this;
++    }
++
++    @Override
++    public PacketStep build() {
++        return initial;
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/DelayPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/DelayPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..83490b2f06b714dba024d89eec31c0636e4baa3a
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/DelayPacketStep.java
+@@ -0,0 +1,35 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import org.bukkit.Bukkit;
++import org.bukkit.entity.Player;
++import org.bukkit.packet.PacketStep;
++import org.bukkit.plugin.java.JavaPlugin;
++
++import java.util.Collection;
++import java.util.concurrent.TimeUnit;
++
++public class DelayPacketStep implements PacketStep {
++
++    private PacketStep next;
++    private final JavaPlugin javaPlugin;
++    private final long delay;
++    private final TimeUnit timeUnit;
++
++    public DelayPacketStep(JavaPlugin javaPlugin, long delay, TimeUnit timeUnit) {
++        this.javaPlugin = javaPlugin;
++        this.delay = delay;
++        this.timeUnit = timeUnit;
++    }
++
++    @Override
++    public void execute(Collection<? extends Player> players) {
++        Bukkit.getScheduler().runTaskLater(javaPlugin, () -> {
++            if (next != null) next.execute(players);
++        }, 20 * timeUnit.toSeconds(delay));
++    }
++
++    @Override
++    public void setNext(PacketStep next) {
++        this.next = next;
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/EmptyPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/EmptyPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0204663e6c94ea7f49e525dd58a727ab9b2037ad
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/EmptyPacketStep.java
+@@ -0,0 +1,12 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.Collection;
++
++public class EmptyPacketStep extends AbstractPacketStep {
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/ProfilePacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/ProfilePacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..af93d578e46d49e40f04587248c065c9026123a7
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/ProfilePacketStep.java
+@@ -0,0 +1,49 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import com.destroystokyo.paper.profile.CraftPlayerProfile;
++import com.destroystokyo.paper.profile.PlayerProfile;
++import com.mojang.authlib.GameProfile;
++import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
++import net.minecraft.world.level.GameType;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++import org.bukkit.packet.PacketOptions;
++
++import java.util.Collection;
++
++public class ProfilePacketStep extends AbstractPacketStep {
++
++    private final ClientboundPlayerInfoPacket clientboundPlayerInfoPacket;
++
++    public ProfilePacketStep(PlayerProfile playerProfile, PacketOptions.ProfileAction profileAction) {
++        GameProfile gameProfile = ((CraftPlayerProfile) playerProfile).getGameProfile();
++        this.clientboundPlayerInfoPacket = new ClientboundPlayerInfoPacket();
++        ClientboundPlayerInfoPacket.PlayerUpdate playerUpdate = new ClientboundPlayerInfoPacket.PlayerUpdate(gameProfile, 0, GameType.NOT_SET, null);
++        this.clientboundPlayerInfoPacket.entries.add(playerUpdate);
++        this.clientboundPlayerInfoPacket.action = from(profileAction);
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, clientboundPlayerInfoPacket);
++        }
++    }
++
++    public ClientboundPlayerInfoPacket.Action from(PacketOptions.ProfileAction action) {
++        switch (action) {
++            case ADD_PLAYER:
++                return ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
++            case REMOVE_PLAYER:
++                return ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
++            case UPDATE_LATENCY:
++                return ClientboundPlayerInfoPacket.Action.UPDATE_LATENCY;
++            case UPDATE_GAME_MODE:
++                return ClientboundPlayerInfoPacket.Action.UPDATE_GAME_MODE;
++            case UPDATE_DISPLAY_NAME:
++                return ClientboundPlayerInfoPacket.Action.UPDATE_DISPLAY_NAME;
++        }
++        return ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
++    }
++
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/RotateHeadStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/RotateHeadStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0bb20ec548935bc333abba22c9d8e6100e346250
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/RotateHeadStep.java
+@@ -0,0 +1,25 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.Collection;
++
++public class RotateHeadStep extends AbstractPacketStep {
++
++    private final ClientboundRotateHeadPacket rot;
++
++    public RotateHeadStep(int entityId, float yaw) {
++        rot = new ClientboundRotateHeadPacket();
++        rot.entityId = entityId;
++        rot.yHeadRot = (byte) ((int) (yaw * 256.0F / 360.0F));
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, rot);
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/SetEquipmentPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/SetEquipmentPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..43763373ba0f39b039c026f3aeaf6251ba5891c0
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/SetEquipmentPacketStep.java
+@@ -0,0 +1,43 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundSetEquippedItemPacket;
++import net.minecraft.world.entity.EquipmentSlot;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.Collection;
++
++public class SetEquipmentPacketStep extends AbstractPacketStep {
++
++    private final ClientboundSetEquippedItemPacket npcEquip;
++
++    public SetEquipmentPacketStep(int entityId, org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
++        npcEquip = new ClientboundSetEquippedItemPacket(entityId, from(equipmentSlot), CraftItemStack.asNMSCopy(itemStack));
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, npcEquip);
++        }
++    }
++
++    private EquipmentSlot from(org.bukkit.inventory.EquipmentSlot equipmentSlot) {
++        switch (equipmentSlot) {
++            case HAND:
++                return EquipmentSlot.MAINHAND;
++            case OFF_HAND:
++                return EquipmentSlot.OFFHAND;
++            case FEET:
++                return EquipmentSlot.FEET;
++            case LEGS:
++                return EquipmentSlot.LEGS;
++            case CHEST:
++                return EquipmentSlot.CHEST;
++            case HEAD:
++            default:
++                return EquipmentSlot.HEAD;
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/SetTeamPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/SetTeamPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5268f13b14e9c7f0ba48dd9df064db3234f465d6
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/SetTeamPacketStep.java
+@@ -0,0 +1,30 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
++import net.minecraft.world.scores.PlayerTeam;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.craftbukkit.scoreboard.CraftTeam;
++import org.bukkit.entity.Player;
++import org.bukkit.packet.PacketOptions;
++import org.bukkit.scoreboard.Team;
++import org.jetbrains.annotations.NotNull;
++
++import java.util.Collection;
++
++public class SetTeamPacketStep extends AbstractPacketStep {
++
++    private final ClientboundSetPlayerTeamPacket clientboundSetPlayerTeamPacket;
++
++    public SetTeamPacketStep(@NotNull Team team, @NotNull PacketOptions.TeamMode teamMode) {
++        PlayerTeam playerTeam = ((CraftTeam)team).getScoreboard().getHandle().getPlayerTeam(team.getName());
++        clientboundSetPlayerTeamPacket = new ClientboundSetPlayerTeamPacket(playerTeam, teamMode.getMode());
++
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, clientboundSetPlayerTeamPacket);
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/SleepAtPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/SleepAtPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..327bd2167eb2f711e799005564d76cfaaaff34e1
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/SleepAtPacketStep.java
+@@ -0,0 +1,39 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.core.BlockPos;
++import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
++import net.minecraft.network.syncher.EntityDataAccessor;
++import net.minecraft.network.syncher.EntityDataSerializers;
++import net.minecraft.network.syncher.SynchedEntityData;
++import net.minecraft.world.entity.Pose;
++import org.bukkit.Bukkit;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.Optional;
++
++public class SleepAtPacketStep extends AbstractPacketStep {
++
++    private final ClientboundSetEntityDataPacket meta;
++
++    public SleepAtPacketStep(int entityId, Location location) {
++        meta = new ClientboundSetEntityDataPacket();
++        meta.id = entityId;
++        meta.packedItems = new ArrayList<>();
++        meta.packedItems.add(new SynchedEntityData.Item<>(new EntityDataAccessor<>(6, EntityDataSerializers.POSE), Pose.SLEEPING));
++        meta.packedItems.add(new SynchedEntityData.Item<>(new EntityDataAccessor<>(13,
++                EntityDataSerializers.OPTIONAL_BLOCK_POS),
++                Optional.of(new BlockPos(location.getBlockX(), location.getY(), location.getBlockZ())))
++        );
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : Bukkit.getOnlinePlayers()) {
++            sendPacket(player, meta);
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/SpawnPlayerPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/SpawnPlayerPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..2645a65368b06d1e9f2ddfdf01375bf0ce65c608
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/SpawnPlayerPacketStep.java
+@@ -0,0 +1,32 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.Collection;
++import java.util.UUID;
++
++public class SpawnPlayerPacketStep extends AbstractPacketStep {
++
++    private final ClientboundAddPlayerPacket clientboundAddPlayerPacket;
++
++    public SpawnPlayerPacketStep(int entityId, UUID uuid, Location location) {
++        clientboundAddPlayerPacket = new ClientboundAddPlayerPacket();
++        clientboundAddPlayerPacket.entityId = entityId;
++        clientboundAddPlayerPacket.playerId = uuid;
++        clientboundAddPlayerPacket.x = location.getX();
++        clientboundAddPlayerPacket.y = location.getY();
++        clientboundAddPlayerPacket.z = location.getZ();
++        clientboundAddPlayerPacket.yRot = (byte)((int)(location.getYaw() * 256.0F / 360.0F));
++        clientboundAddPlayerPacket.xRot = (byte)((int)(location.getPitch() * 256.0F / 360.0F));
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, clientboundAddPlayerPacket);
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/packet/steps/TeleportEntityPacketStep.java b/src/main/java/org/bukkit/craftbukkit/packet/steps/TeleportEntityPacketStep.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..52fb428c7155ce8ff3d68ca46ff8efaab8045af5
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/packet/steps/TeleportEntityPacketStep.java
+@@ -0,0 +1,31 @@
++package org.bukkit.craftbukkit.packet.steps;
++
++import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.packet.AbstractPacketStep;
++import org.bukkit.entity.Player;
++
++import java.util.Collection;
++
++public class TeleportEntityPacketStep extends AbstractPacketStep {
++
++    private final ClientboundTeleportEntityPacket teleportEntityPacket;
++
++    public TeleportEntityPacketStep(int entityId, Location location, boolean onGround) {
++        teleportEntityPacket = new ClientboundTeleportEntityPacket();
++        teleportEntityPacket.id = entityId;
++        teleportEntityPacket.x = location.getX();
++        teleportEntityPacket.y = location.getY();
++        teleportEntityPacket.z = location.getZ();
++        teleportEntityPacket.yRot = (byte)((int)(location.getYaw() * 256.0F / 360.0F));
++        teleportEntityPacket.xRot = (byte)((int)(location.getPitch() * 256.0F / 360.0F));
++        teleportEntityPacket.onGround = onGround;
++    }
++
++    @Override
++    protected void executeStep(Collection<? extends Player> players) {
++        for (Player player : players) {
++            sendPacket(player, teleportEntityPacket);
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
+index 9686aefe58fdf8b9bd17aec0b0b5f973693d9a96..2ad66c62609be183831bf82c0f65f3837f27eb63 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
++++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
+@@ -19,7 +19,7 @@ import org.bukkit.scoreboard.Team;
+ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
+     final Scoreboard board;
+ 
+-    CraftScoreboard(Scoreboard board) {
++    public CraftScoreboard(Scoreboard board) {
+         this.board = board;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
+index f6b40f71c96a9dba33ee1d4c985993c84f568d79..2bade78c6e4136d9cf0d1ab0b6382ca0a00bcc1a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
++++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
+@@ -12,10 +12,10 @@ import org.bukkit.craftbukkit.util.CraftChatMessage;
+ import org.bukkit.scoreboard.NameTagVisibility;
+ import org.bukkit.scoreboard.Team;
+ 
+-final class CraftTeam extends CraftScoreboardComponent implements Team {
++public final class CraftTeam extends CraftScoreboardComponent implements Team {
+     private final PlayerTeam team;
+ 
+-    CraftTeam(CraftScoreboard scoreboard, PlayerTeam team) {
++    public CraftTeam(CraftScoreboard scoreboard, PlayerTeam team) {
+         super(scoreboard);
+         this.team = team;
+     }
