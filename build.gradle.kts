@@ -1,3 +1,5 @@
+import stuff.mcVersion
+
 plugins {
     java
     toothpick
@@ -7,7 +9,7 @@ plugins {
 initToothPickTasks()
 
 toothpick {
-    minecraftVersion = "1.15.2"
+    minecraftVersion = mcVersion
     forkName = "MiniPaper"
     groupId = "me.minidigger.MiniPaper"
     upstreamName = "Paper"

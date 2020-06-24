@@ -16,6 +16,7 @@ import org.gradle.api.Task
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
 import paper.*
+import stuff.mcVersion
 import stuff.taskGroupPrivate
 import java.io.File
 import java.net.URL
@@ -34,8 +35,8 @@ fun initRemappingTasks(project: Project): List<Task> {
             val buildData = projectDir.resolve("work/Paper/work/BuildData/mappings")
 
             project.logger.info("Reading...")
-            val classes = MappingFormats.CSRG.read(buildData.resolve("bukkit-1.15.2-cl.csrg"))
-            val members = MappingFormats.CSRG.read(buildData.resolve("bukkit-1.15.2-members.csrg"))
+            val classes = MappingFormats.CSRG.read(buildData.resolve("bukkit-$mcVersion-cl.csrg"))
+            val members = MappingFormats.CSRG.read(buildData.resolve("bukkit-$mcVersion-members.csrg"))
 
             project.logger.info("Fixing packages...")
             classes.topLevelClassMappings.forEach { klass ->
@@ -78,7 +79,7 @@ fun initRemappingTasks(project: Project): List<Task> {
             project.logger.info("Reading mojang...")
             val mojangFile = project.projectDir.resolve("work/server.txt")
             if (!mojangFile.exists()) {
-                mojangFile.writeText(URL("https://launcher.mojang.com/v1/objects/59c55ae6c2a7c28c8ec449824d9194ff21dc7ff1/server.txt").readText())
+                mojangFile.writeText(URL(stuff.serverMappings).readText())
             }
             val mojangMappings = MappingFormats.byId("proguard").read(mojangFile.toPath())
 
@@ -127,7 +128,7 @@ fun initRemappingTasks(project: Project): List<Task> {
             mercury.sourceCompatibility = "1.8"
             mercury.encoding = StandardCharsets.UTF_8
 
-            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"))
+            mercury.classPath.add(projectDir.resolve("work/Paper/work/Minecraft/$mcVersion/$mcVersion-mapped.jar"))
             mercury.classPath.add(projectDir.resolve("work/Paper/Paper-API/src/main/java"))
 
             project.subprojects.filter { p -> p.name == "fake" }.forEach { p ->
@@ -173,10 +174,10 @@ fun initRemappingTasks(project: Project): List<Task> {
             atlas.install { ctx ->
                 DebugJarEntryRemappingTransformer(LorenzRemapper(combined, ctx.inheritanceProvider()))
             }
-            atlas.run(projectDir.resolve("work/Paper/work/Minecraft/1.15.2/1.15.2-mapped.jar"), projectDir.resolve("work/1.15.2-mojang-mapped.jar"))
+            atlas.run(projectDir.resolve("work/Paper/work/Minecraft/$mcVersion/$mcVersion-mapped.jar"), projectDir.resolve("work/$mcVersion-mojang-mapped.jar"))
             atlas.close()
 
-            ensureSuccess(cmd("mvn", "install:install-file", "-q", "-Dfile=${project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").absolutePath}", "-Dpackaging=jar", "-DgroupId=me.minidigger", "-DartifactId=minecraft-server", "-Dversion=\"$minecraftversion-SNAPSHOT\"", directory = project.projectDir))
+            ensureSuccess(cmd("mvn", "install:install-file", "-q", "-Dfile=${project.projectDir.resolve("work/$mcVersion-mojang-mapped.jar").absolutePath}", "-Dpackaging=jar", "-DgroupId=me.minidigger", "-DartifactId=minecraft-server", "-Dversion=\"$minecraftversion-SNAPSHOT\"", directory = project.projectDir))
         }
     }
 
@@ -187,7 +188,7 @@ fun initRemappingTasks(project: Project): List<Task> {
             logger.lifecycle("Extracing classes...")
             classesFolder.deleteRecursively()
             classesFolder.mkdirs()
-            ensureSuccess(cmd("jar", "xf", project.projectDir.resolve("work/1.15.2-mojang-mapped.jar").absolutePath, directory = classesFolder, printToStdout = true))
+            ensureSuccess(cmd("jar", "xf", project.projectDir.resolve("work/$mcVersion-mojang-mapped.jar").absolutePath, directory = classesFolder, printToStdout = true))
 
             val decompFolder = project.projectDir.resolve("work/decomp")
             decompFolder.deleteRecursively()

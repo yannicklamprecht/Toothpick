@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+import stuff.mcVersion
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -16,13 +17,13 @@ dependencies {
     loadDependencies(File(project.projectDir, "pom.xml"), project, true)
 
     val projectDir = project.parent!!.projectDir
-    val og = project.parent!!.projectDir.resolve("work/1.15.2-mojang-mapped.jar")
+    val og = project.parent!!.projectDir.resolve("work/$mcVersion-mojang-mapped.jar")
     if (!og.exists()) {
-        logger.warn("work/1.15.2-mojang-mapped.jar doesn't exist (yet)")
+        logger.warn("work/$mcVersion-mojang-mapped.jar doesn't exist (yet)")
         return@dependencies
     }
     for (i in 0..100) {
-        val file = projectDir.resolve("work/1.15.2-mojang-mapped-copied-$i.jar")
+        val file = projectDir.resolve("work/$mcVersion-mojang-mapped-copied-$i.jar")
         if (file.exists()) {
             if (file.delete()) {
                 og.copyTo(file, true)

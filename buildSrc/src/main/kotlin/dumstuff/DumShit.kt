@@ -11,6 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
+import stuff.mcVersion
 import stuff.taskGroupPrivate
 import toothpick.DebugJarEntryRemappingTransformer
 import java.net.URL
@@ -27,9 +28,7 @@ fun dumShitTasks(project: Project): List<Task> {
     val modDecomp = workFolder.resolve("modDecomp")
     val patched = workFolder.resolve("patched")
     val paperWorkDir = project.projectDir.resolve("work/Paper/work")
-    val serverUrl = "https://launcher.mojang.com/v1/objects/03b8fa357937d0bdb6650ec8cc74506ec2fd91a7/server.jar"
-    val serverMappingUrl = "https://launcher.mojang.com/v1/objects/cd36be8de62b1a50f174b06767b49b9f79f3b807/server.txt"
-    val minecraftVersion = "20w21a"
+    
 
     val extractMod: Task by project.tasks.creating {
         group = taskGroupPrivate
@@ -38,7 +37,7 @@ fun dumShitTasks(project: Project): List<Task> {
         }
         doLast {
             modClasses.mkdirs()
-            ensureSuccess(cmd("jar", "xf", project.projectDir.resolve("DyescapePaper-Server/target/dyescapepaper-1.15.2.jar").toString(), "net/minecraft", directory = modClasses, printToStdout = true))
+            ensureSuccess(cmd("jar", "xf", project.projectDir.resolve("DyescapePaper-Server/target/dyescapepaper-$mcVersion.jar").toString(), "net/minecraft", directory = modClasses, printToStdout = true))
 
         }
     }
@@ -90,10 +89,10 @@ fun dumShitTasks(project: Project): List<Task> {
         group = taskGroupPrivate
         dependsOn(diffServer)
         onlyIf {
-            !workFolder.resolve("$minecraftVersion.jar").exists()
+            !workFolder.resolve("${stuff.minecraftVersion}.jar").exists()
         }
         doLast {
-            workFolder.resolve("$minecraftVersion.jar").writeBytes(URL(serverUrl).readBytes())
+            workFolder.resolve("${stuff.minecraftVersion}.jar").writeBytes(URL(stuff.serverUrl).readBytes())
         }
     }
 
@@ -101,12 +100,12 @@ fun dumShitTasks(project: Project): List<Task> {
         group = taskGroupPrivate
         dependsOn(downloadVanillaSnapshot)
         onlyIf {
-            !workFolder.resolve("$minecraftVersion-mapped.jar").exists()
+            !workFolder.resolve("${stuff.minecraftVersion}-mapped.jar").exists()
         }
         doLast {
             val mojangFile = workFolder.resolve("server.txt")
             if (!mojangFile.exists()) {
-                mojangFile.writeText(URL(serverMappingUrl).readText())
+                mojangFile.writeText(URL(stuff.serverMappingUrl).readText())
             }
             val mojangMappings = MappingFormats.byId("proguard").read(mojangFile.toPath()).reverse()
 
@@ -114,10 +113,10 @@ fun dumShitTasks(project: Project): List<Task> {
             atlas.install { ctx ->
                 DebugJarEntryRemappingTransformer(LorenzRemapper(mojangMappings, ctx.inheritanceProvider()))
             }
-            atlas.run(workFolder.resolve("$minecraftVersion.jar").toPath(), workFolder.resolve("$minecraftVersion-mapped.jar").toPath())
+            atlas.run(workFolder.resolve("${stuff.minecraftVersion}.jar").toPath(), workFolder.resolve("${stuff.minecraftVersion}-mapped.jar").toPath())
             atlas.close()
 
-            ensureSuccess(cmd("mvn", "install:install-file", "-q", "-Dfile=${workFolder.resolve("$minecraftVersion-mapped.jar").absolutePath}", "-Dpackaging=jar", "-DgroupId=me.minidigger", "-DartifactId=minecraft-server", "-Dversion=\"$minecraftVersion-SNAPSHOT\"", directory = project.projectDir))
+            ensureSuccess(cmd("mvn", "install:install-file", "-q", "-Dfile=${workFolder.resolve("${stuff.minecraftVersion}-mapped.jar").absolutePath}", "-Dpackaging=jar", "-DgroupId=me.minidigger", "-DartifactId=minecraft-server", "-Dversion=\"${stuff.minecraftVersion}-SNAPSHOT\"", directory = project.projectDir))
         }
     }
 
@@ -129,7 +128,7 @@ fun dumShitTasks(project: Project): List<Task> {
         }
         doLast {
             vanillaClasses.mkdirs()
-            ensureSuccess(cmd("jar", "xf", "$workFolder/$minecraftVersion-mapped.jar", "net/minecraft", directory = vanillaClasses, printToStdout = true))
+            ensureSuccess(cmd("jar", "xf", "$workFolder/${stuff.minecraftVersion}-mapped.jar", "net/minecraft", directory = vanillaClasses, printToStdout = true))
 
         }
     }
