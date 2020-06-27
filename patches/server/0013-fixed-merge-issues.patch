@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Sat, 27 Jun 2020 02:44:15 +0200
+Subject: [PATCH] fixed merge issues
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/monster/Zombie.java b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+index a40c82eafc0fc24456cb25efe1d92835444df840..a8fc6298be648166cd29d10bd0ec120c428db056 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/Zombie.java
++++ b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+@@ -273,7 +273,7 @@ public class Zombie extends Monster {
+ 
+ 
+     protected void eQ() {
+-        this.c(EntityType.DROWNED);
++        this.convertTo(EntityType.DROWNED);
+         if (!this.isSilent()) {
+             this.level.levelEvent((Player) null, 1040, this.getCommandSenderBlockPosition(), 0);
+ 
+@@ -325,19 +325,11 @@ public class Zombie extends Monster {
+                 return;
+             }
+             // CraftBukkit end
+-            if (!new com.destroystokyo.paper.event.entity.EntityTransformedEvent(this.getBukkitEntity(), entityzombie.getBukkitEntity(), com.destroystokyo.paper.event.entity.EntityTransformedEvent.TransformedReason.DROWNED).callEvent()) return; // Paper
++            if (!new com.destroystokyo.paper.event.entity.EntityTransformedEvent(this.getBukkitEntity(), entityzombie.getBukkitEntity(), com.destroystokyo.paper.event.entity.EntityTransformedEvent.TransformedReason.DROWNED).callEvent())
++                return; // Paper
+             this.level.addEntity(entityzombie, CreatureSpawnEvent.SpawnReason.DROWNED); // CraftBukkit - added spawn reason
+             this.remove();
+-
+-    protected void c(EntityType<? extends net.minecraft.world.entity.monster.Zombie> entitytypes) {
+-        net.minecraft.world.entity.monster.Zombie entityzombie = (net.minecraft.world.entity.monster.Zombie) this.b(entitytypes);
+-
+-        if (entityzombie != null) {
+-            entityzombie.u(entityzombie.level.getDamageScaler(entityzombie.getCommandSenderBlockPosition()).getSpecialMultiplier());
+-            entityzombie.u(entityzombie.eL() && this.eV());
+         }
+-        else { ((Zombie) getBukkitEntity()).setConversionTime(-1); } // SPIGOT-5208: End conversion to stop event spam
+-
+     }
+ 
+     public boolean shouldBurnInDay() { return U_(); } // Paper - OBFHELPER
+diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
+index 3ebb977e96f3c0e8135c278bb3b996423d30cc85..fa947f02c5e0d7bdca0d1f719ef9d8e4d9477e90 100644
+--- a/src/main/java/net/minecraft/world/entity/player/Player.java
++++ b/src/main/java/net/minecraft/world/entity/player/Player.java
+@@ -1389,8 +1389,6 @@ public abstract class Player extends LivingEntity {
+     }
+ 
+     public Either<net.minecraft.world.entity.player.Player.BedSleepingProblem, Unit> sleep(BlockPos blockposition, boolean force) {
+-<<<<<<< HEAD
+-=======
+         Direction enumdirection = (Direction) this.level.getBlockState(blockposition).getValue(HorizontalDirectionalBlock.FACING);
+         Either<net.minecraft.world.entity.player.Player.BedSleepingProblem, Unit> bedResult = this.getBedResult(blockposition, enumdirection);
+ 
+@@ -1409,7 +1407,6 @@ public abstract class Player extends LivingEntity {
+                 return bedResult;
+             }
+         }
+->>>>>>> Toothpick
+         // CraftBukkit end
+         this.startSleeping(blockposition);
+         this.sleepCounter = 0;
+diff --git a/src/main/java/net/minecraft/world/level/border/WorldBorder.java b/src/main/java/net/minecraft/world/level/border/WorldBorder.java
+index 0c92398905c6a5e4178cdab3b2b0e863f4040238..ffaa2c14b22b490e13ce33201c9a522ed7401432 100644
+--- a/src/main/java/net/minecraft/world/level/border/WorldBorder.java
++++ b/src/main/java/net/minecraft/world/level/border/WorldBorder.java
+@@ -354,7 +354,7 @@ public class WorldBorder {
+         }
+     }
+ 
+-    class d implements WorldBorder.BorderExtent {
++    public class d implements WorldBorder.BorderExtent {
+ 
+         private final double b;
+         private double c;
+@@ -493,7 +493,7 @@ public class WorldBorder {
+ 
+         @Override
+         public WorldBorder.BorderExtent update() {
+-            return (WorldBorder.BorderExtent) (this.getLerpRemainingTime() <= 0L ? WorldBorder.this.new net.minecraft.world.level.border.WorldBorder.d(this.to) : this);
++            return (WorldBorder.BorderExtent) (this.getLerpRemainingTime() <= 0L ? WorldBorder.this.new d(this.to) : this);
+         }
+ 
+         @Override
