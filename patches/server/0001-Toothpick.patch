@@ -20,7 +20,7 @@ index 67fb370cad6924895a6b27052dbd5c1767e3f0c9..400937f890a350891a63bf5b6a43784b
  # maven
  /target
 diff --git a/src/main/java/net/minecraft/server/EULA.java b/src/main/java/net/minecraft/server/EULA.java
-index e9452d5515c3d564a0104eb09e5c0a6b1bb1beb0..65ee95a3f9bf86f1922489636d9639b4c45f8bbc 100644
+index efba226c9697feaba420f8a5a6953db95531d760..7a486c5e6c33d3887d9d27bd94e4aa5e50c61721 100644
 --- a/src/main/java/net/minecraft/server/EULA.java
 +++ b/src/main/java/net/minecraft/server/EULA.java
 @@ -8,13 +8,13 @@ import net.minecraft.SharedConstants;
@@ -37,7 +37,7 @@ index e9452d5515c3d564a0104eb09e5c0a6b1bb1beb0..65ee95a3f9bf86f1922489636d9639b4
 -    public Eula(java.nio.file.Path java_nio_file_path) {
 +    public EULA(java.nio.file.Path java_nio_file_path) {
          this.file = java_nio_file_path;
-         this.agreed = SharedConstants.IS_RUNNING_IN_IDE || this.readFile();
+         this.agreed = SharedConstants.CURRENT_VERSION || this.readFile();
      }
 @@ -51,7 +51,7 @@ public class Eula {
  
@@ -58,45 +58,167 @@ index e9452d5515c3d564a0104eb09e5c0a6b1bb1beb0..65ee95a3f9bf86f1922489636d9639b4
  
          }
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 94eb1f61abf1699733b283a7f86d3cdde751ff9b..0447a582893adfc57a3484083d9d58d65fcf5f6e 100644
+index e89516360cb2eec68fdc5633d4bc4e32dab1bfc9..1de6c726ef84d96594b4adf5a967d11982e2d5d8 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1493,7 +1493,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1496,6 +1496,139 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
-             dedicatedserversettings.forceSave();
-             java.nio.file.Path java_nio_file_path1 = Paths.get("eula.txt");
--            Eula eula = new Eula(java_nio_file_path1);
+     protected void setLocalIp(String s) {
+         this.ai = s;
++
++    }
++    public static void main(final OptionSet optionset) { // CraftBukkit - replaces main(String[] astring)
++        /* CraftBukkit start - Replace everything
++        OptionParser optionparser = new OptionParser();
++        OptionSpec<Void> optionspec = optionparser.accepts("nogui");
++        OptionSpec<Void> optionspec1 = optionparser.accepts("initSettings", "Initializes 'server.properties' and 'eula.txt', then quits");
++        OptionSpec<Void> optionspec2 = optionparser.accepts("demo");
++        OptionSpec<Void> optionspec3 = optionparser.accepts("bonusChest");
++        OptionSpec<Void> optionspec4 = optionparser.accepts("forceUpgrade");
++        OptionSpec<Void> optionspec5 = optionparser.accepts("eraseCache");
++        OptionSpec<Void> optionspec6 = optionparser.accepts("help").forHelp();
++        OptionSpec<String> optionspec7 = optionparser.accepts("singleplayer").withRequiredArg();
++        OptionSpec<String> optionspec8 = optionparser.accepts("universe").withRequiredArg().defaultsTo(".", new String[0]);
++        OptionSpec<String> optionspec9 = optionparser.accepts("world").withRequiredArg();
++        OptionSpec<Integer> optionspec10 = optionparser.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(-1, new Integer[0]);
++        OptionSpec<String> optionspec11 = optionparser.accepts("serverId").withRequiredArg();
++        NonOptionArgumentSpec nonoptionargumentspec = optionparser.nonOptions();
++
++        try {
++            OptionSet optionset = optionparser.parse(astring);
++
++            if (optionset.has(optionspec6)) {
++                optionparser.printHelpOn(System.err);
++                return;
++            }
++            */ // CraftBukkit end
++
++        try {
++            java.nio.file.Path java_nio_file_path = Paths.get("server.properties");
++            DedicatedServerSettings dedicatedserversettings = new DedicatedServerSettings(optionset); // CraftBukkit - CLI argument support
++
++            dedicatedserversettings.forceSave();
++            java.nio.file.Path java_nio_file_path1 = Paths.get("eula.txt");
 +            EULA eula = new EULA(java_nio_file_path1);
- 
-             if (optionset.has("initSettings")) { // CraftBukkit
-                 MinecraftServer.LOGGER.info("Initialized '" + java_nio_file_path.toAbsolutePath().toString() + "' and '" + java_nio_file_path1.toAbsolutePath().toString() + "'");
-@@ -1572,7 +1572,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-                 dedicatedserver.eraseCache(true);
-             }
- 
--            Class.forName("net.minecraft.server.VillagerTrades");// Paper - load this sync so it won't fail later async
++
++            if (optionset.has("initSettings")) { // CraftBukkit
++                MinecraftServer.LOGGER.info("Initialized '" + java_nio_file_path.toAbsolutePath().toString() + "' and '" + java_nio_file_path1.toAbsolutePath().toString() + "'");
++                return;
++            }
++
++            // Spigot Start
++            boolean eulaAgreed = Boolean.getBoolean( "com.mojang.eula.agree" );
++            if ( eulaAgreed )
++            {
++                System.err.println( "You have used the Spigot command line EULA agreement flag." );
++                System.err.println( "By using this setting you are indicating your agreement to Mojang's EULA (https://account.mojang.com/documents/minecraft_eula)." );
++                System.err.println( "If you do not agree to the above EULA please stop your server and remove this flag immediately." );
++            }
++            // Spigot End
++            if (!eula.hasAgreedToEULA() && !eulaAgreed) { // Spigot
++                MinecraftServer.LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
++                return;
++            }
++
++            CrashReport.preload();
++            Bootstrap.bootStrap();
++            Bootstrap.validate();
++            File s = (File) optionset.valueOf("universe"); // CraftBukkit
++            YggdrasilAuthenticationService yggdrasilauthenticationservice = new com.destroystokyo.paper.profile.PaperAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString()); // Paper
++            MinecraftSessionService minecraftsessionservice = yggdrasilauthenticationservice.createMinecraftSessionService();
++            GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
++            GameProfileCache usercache = new GameProfileCache(gameprofilerepository, new File(s, MinecraftServer.USERID_CACHE_FILE.getName()));
++            // CraftBukkit start
++            String s1 = (String) Optional.ofNullable(optionset.valueOf("world")).orElse(dedicatedserversettings.getProperties().levelName);
++            final DedicatedServer dedicatedserver = new DedicatedServer(optionset, dedicatedserversettings, DataFixers.getDataFixerOH(), yggdrasilauthenticationservice, minecraftsessionservice, gameprofilerepository, usercache, LoggerChunkProgressListener::new, s1);
++
++            /*
++            dedicatedserver.i((String) optionset.valueOf(optionspec7));
++            dedicatedserver.setPort((Integer) optionset.valueOf(optionspec10));
++            dedicatedserver.e(optionset.has(optionspec2));
++            dedicatedserver.f(optionset.has(optionspec3));
++            dedicatedserver.setForceUpgrade(optionset.has(optionspec4));
++            dedicatedserver.setEraseCache(optionset.has(optionspec5));
++            dedicatedserver.c((String) optionset.valueOf(optionspec11));
++            */
++            boolean flag = !optionset.has("nogui") && !optionset.nonOptionArguments().contains("nogui");
++
++            if (flag && !GraphicsEnvironment.isHeadless()) {
++                dedicatedserver.showGui();
++            }
++
++            /*
++            dedicatedserver.startServerThread();
++            Thread thread = new Thread("Server Shutdown Thread") {
++                public void run() {
++                    dedicatedserver.safeShutdown(true);
++                }
++            };
++
++            thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(MinecraftServer.LOGGER));
++            Runtime.getRuntime().addShutdownHook(thread);
++            */
++
++            if (optionset.has("port")) {
++                int port = (Integer) optionset.valueOf("port");
++                if (port > 0) {
++                    dedicatedserver.setPort(port);
++                }
++            }
++
++            if (optionset.has("universe")) {
++                dedicatedserver.universe = (File) optionset.valueOf("universe");
++            }
++
++            if (optionset.has("forceUpgrade")) {
++                dedicatedserver.forceUpgrade(true);
++            }
++
++            if (optionset.has("eraseCache")) {
++                dedicatedserver.eraseCache(true);
++            }
++
 +            Class.forName("net.minecraft.world.entity.npc.VillagerTrades");// Paper - load this sync so it won't fail later async // Toothpick - reflection fix
-             dedicatedserver.serverThread.setPriority(Thread.NORM_PRIORITY+2); // Paper - boost priority
-             dedicatedserver.serverThread.start();
-             // CraftBukkit end
++            dedicatedserver.serverThread.setPriority(Thread.NORM_PRIORITY+2); // Paper - boost priority
++            dedicatedserver.serverThread.start();
++            // CraftBukkit end
++        } catch (Exception exception) {
++            MinecraftServer.LOGGER.fatal("Failed to start the minecraft server", exception);
++        }
++
++    }
++
++    protected void setId(String s) {
++        this.serverId = s;
++    }
++
++    protected void forceUpgrade(boolean flag) {
++        this.forceUpgrade = flag;
++    }
++
++    protected void eraseCache(boolean flag) {
++        this.eraseCache = flag;
+     }
+ 
+     public File c(String s) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index eec98e18639b05f9d40c03f8b8986e772986748a..ba923f1f6f388c9539ca6a1fcf7a2a88e359456f 100644
+index 5e43ed065ce145303797e23d9ff97c2703104710..0282d758832a158861bf6c87b8ef8dd7765e9b42 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1742,7 +1742,7 @@ public class ServerLevel extends net.minecraft.world.level.Level {
+@@ -1625,7 +1625,7 @@ public class ServerLevel extends net.minecraft.world.level.Level implements Gene
          this.getChunkSourceOH().broadcastIncludingSelf(entity, new ClientboundEntityEventPacket(entity, b0));
      }
  
 -    @Override
 +//    @Override // Toothpick
      public ServerChunkCache getChunkSourceOH() {
-         return (ServerChunkCache) super.getChunkSource();
+         return this.chunkProvider;
      }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index e1fdd3c57ee19ec78b9e9ee4d8358be19dff5700..36da3ced2a86e222c624e1c865453d1458da41c1 100644
+index 53b8b3a79f601eafd97ed908e9926c5d5ec546b3..071482c4786623ec172c470e3a8e74b4b795dd46 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -214,7 +214,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
+@@ -219,7 +219,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
      private long keepAliveChallenge; private void setKeepAliveID(long keepAliveID) { this.keepAliveChallenge = keepAliveID;}; private long getKeepAliveID() {return this.keepAliveChallenge; };  // Paper - OBFHELPER
      // CraftBukkit start - multithreaded fields
      private volatile int chatSpamTickCount;
@@ -106,10 +228,10 @@ index e1fdd3c57ee19ec78b9e9ee4d8358be19dff5700..36da3ced2a86e222c624e1c865453d14
      // CraftBukkit end
      private int dropSpamTickCount;
 diff --git a/src/main/java/net/minecraft/server/players/GameProfileCache.java b/src/main/java/net/minecraft/server/players/GameProfileCache.java
-index 221b1fedfbf9322e64d22ffc7c00b8851a4da82c..845c8b2f3db4c0ba389f2efb9478d2cead1dcf2f 100644
+index 7525b91e88d43397d95abcf4a983566e87d0d6f1..eca184d67c40d47bd55c39748067c80bc4cf40fb 100644
 --- a/src/main/java/net/minecraft/server/players/GameProfileCache.java
 +++ b/src/main/java/net/minecraft/server/players/GameProfileCache.java
-@@ -345,7 +345,7 @@ public class GameProfileCache {
+@@ -334,7 +334,7 @@ public class GameProfileCache {
                              return null;
                          }
  
@@ -119,16 +241,16 @@ index 221b1fedfbf9322e64d22ffc7c00b8851a4da82c..845c8b2f3db4c0ba389f2efb9478d2ce
                          return null;
                      }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 79897fc6802732b862c363027b7199be2056d7ad..b2cdb051ed439ccd597796512bb507964efc09d2 100644
+index 3ca4dc453d43e0c5ff2466834031ed441581d531..41d2c87f86a9871c19670c48c10aedb6b38d6b1e 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -313,11 +313,11 @@ public abstract class Entity implements Nameable, CommandSource, KeyedObject { /
+@@ -314,11 +314,11 @@ public abstract class Entity implements Nameable, CommandSource, KeyedObject { /
          Boolean hardCollides = cachedOverrides.get(this.getClass());
          if (hardCollides == null) {
              try {
--                Object getHardCollisionBoxMethod = Entity.class.getMethod("au");
+-                Object getHardCollisionBoxMethod = Entity.class.getMethod("ay");
 -                Object getHardCollisionBoxEntityMethod = Entity.class.getMethod("j", Entity.class);
--                if (!this.getClass().getMethod("au").equals(getHardCollisionBoxMethod)) {
+-                if (!this.getClass().getMethod("ay").equals(getHardCollisionBoxMethod)) {
 +                Object getHardCollisionBoxMethod = Entity.class.getMethod("getCollideBox"); // Toothpick - remap fix
 +                Object getHardCollisionBoxEntityMethod = Entity.class.getMethod("getCollideAgainstBox", Entity.class); // Toothpick - remap fix
 +                if (!this.getClass().getMethod("getCollideBox").equals(getHardCollisionBoxMethod)) { // Toothpick - remap fix
@@ -139,10 +261,10 @@ index 79897fc6802732b862c363027b7199be2056d7ad..b2cdb051ed439ccd597796512bb50796
                  } else {
                      hardCollides = Boolean.FALSE;
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 002ce01ffd204a8fb65cf4c641609ee3809ad95b..f925961ce4e96a301191019c86bf6cc9ceb3edc3 100644
+index 0194e3a15bafdb7909aa7374a5e686a7c946bf64..de2e3e3eaf7ca593afdf3ad4d244f226cd941f6f 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -118,7 +118,6 @@ import org.bukkit.Location;
+@@ -120,7 +120,6 @@ import org.bukkit.Location;
  import org.bukkit.craftbukkit.attribute.CraftAttributeMap;
  import org.bukkit.craftbukkit.event.CraftEventFactory;
  import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -150,7 +272,7 @@ index 002ce01ffd204a8fb65cf4c641609ee3809ad95b..f925961ce4e96a301191019c86bf6cc9
  import org.bukkit.entity.Player;
  import org.bukkit.event.entity.EntityDamageEvent;
  import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
-@@ -1297,7 +1296,7 @@ public abstract class LivingEntity extends Entity {
+@@ -1409,7 +1408,7 @@ public abstract class LivingEntity extends Entity {
                  }
              }
  
@@ -159,20 +281,20 @@ index 002ce01ffd204a8fb65cf4c641609ee3809ad95b..f925961ce4e96a301191019c86bf6cc9
              event.setCancelled(itemstack == null);
              this.level.getServerOH().getPluginManager().callEvent(event);
  
-@@ -1548,7 +1547,7 @@ public abstract class LivingEntity extends Entity {
+@@ -1661,7 +1660,7 @@ public abstract class LivingEntity extends Entity {
              org.bukkit.util.Vector delta = new org.bukkit.util.Vector(currentMot.x - vec3d.x, currentMot.y - vec3d.y, currentMot.z - vec3d.z);
              // Restore old velocity to be able to access it in the event
              this.setDeltaMovement(vec3d);
--            if (entity == null || new com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent((LivingEntity) getBukkitEntity(), entity.getBukkitEntity(), f, delta).callEvent()) {
+-            if (knockingBackEntity == null || new com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent((LivingEntity) getBukkitEntity(), knockingBackEntity.getBukkitEntity(), f, delta).callEvent()) {
 +            if (entity == null || new com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent((org.bukkit.entity.LivingEntity) getBukkitEntity(), entity.getBukkitEntity(), f, delta).callEvent()) {
                  this.setDeltaMovement(vec3d.x + delta.getX(), vec3d.y + delta.getY(), vec3d.z + delta.getZ());
              }
              // Paper end
 diff --git a/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java b/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
-index 84a3037d431b9258b9cb3d96fdfea77ea39f7422..e691f3a9a7c6624d130ca1290bd48bdc1a7bc56d 100644
+index 61d6c40cd23da7814cca3039199de76ff82d1350..d675fd8265033981472bf3790f15251a4a8fbdbd 100644
 --- a/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
-@@ -41,7 +41,6 @@ import net.minecraft.world.phys.Vec3;
+@@ -40,7 +40,6 @@ import net.minecraft.world.phys.Vec3;
  import org.bukkit.inventory.EquipmentSlot;
  import org.bukkit.craftbukkit.CraftEquipmentSlot;
  import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -180,7 +302,7 @@ index 84a3037d431b9258b9cb3d96fdfea77ea39f7422..e691f3a9a7c6624d130ca1290bd48bdc
  import org.bukkit.entity.Player;
  import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
  // CraftBukkit end
-@@ -451,7 +450,7 @@ public class ArmorStand extends LivingEntity {
+@@ -450,7 +449,7 @@ public class ArmorStand extends LivingEntity {
              org.bukkit.inventory.ItemStack playerHeldItem = CraftItemStack.asCraftMirror(itemstack);
  
              Player player = (Player) entityhuman.getBukkitEntity();
@@ -189,22 +311,11 @@ index 84a3037d431b9258b9cb3d96fdfea77ea39f7422..e691f3a9a7c6624d130ca1290bd48bdc
  
              EquipmentSlot slot = CraftEquipmentSlot.getSlot(enumitemslot);
              PlayerArmorStandManipulateEvent armorStandManipulateEvent = new PlayerArmorStandManipulateEvent(player,self,playerHeldItem,armorStandItem,slot);
-diff --git a/src/main/java/net/minecraft/world/entity/monster/RangedAttackMob.java b/src/main/java/net/minecraft/world/entity/monster/RangedAttackMob.java
-index ea0dd808697d135f88ea7a8ef929489ff4882c0f..a48f896038369d02fd6b78a7d55bb68878d74f36 100644
---- a/src/main/java/net/minecraft/world/entity/monster/RangedAttackMob.java
-+++ b/src/main/java/net/minecraft/world/entity/monster/RangedAttackMob.java
-@@ -7,5 +7,5 @@ public interface RangedAttackMob {
-     void performRangedAttack(LivingEntity entityliving, float f); default void rangedAttack(LivingEntity entityliving, float f) { performRangedAttack(entityliving, f); } // Paper - OBFHELPER
- 
-     // - see EntitySkeletonAbstract melee goal
--    void q(boolean flag); default void setChargingAttack(boolean charging) { q(charging); }; // Paper
-+    void setAggressive(boolean flag); default void setChargingAttack(boolean charging) { setAggressive(charging); }; // Paper
- }
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Slime.java b/src/main/java/net/minecraft/world/entity/monster/Slime.java
-index 8d24fb86fdf7690cadbe57f2a872bc2db0d637dd..7f3ca4c92a3a103f7fec9a35e46587d9204fe8ad 100644
+index 8fc8fdfbcb718e433841077c3ca850a89e3a7247..7c5563180a226ff8e4d1ebcc4ef8351194211726 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Slime.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/Slime.java
-@@ -45,7 +45,6 @@ import com.destroystokyo.paper.event.entity.SlimeSwimEvent;
+@@ -46,7 +46,6 @@ import com.destroystokyo.paper.event.entity.SlimeSwimEvent;
  import com.destroystokyo.paper.event.entity.SlimeTargetLivingEntityEvent;
  import com.destroystokyo.paper.event.entity.SlimeWanderEvent;
  import org.bukkit.entity.LivingEntity;
@@ -212,7 +323,7 @@ index 8d24fb86fdf7690cadbe57f2a872bc2db0d637dd..7f3ca4c92a3a103f7fec9a35e46587d9
  // Paper end
  // CraftBukkit start
  import java.util.ArrayList;
-@@ -407,7 +406,7 @@ public class Slime extends Mob implements Enemy {
+@@ -409,7 +408,7 @@ public class Slime extends Mob implements Enemy {
  
          @Override
          public boolean canUse() {
@@ -221,16 +332,16 @@ index 8d24fb86fdf7690cadbe57f2a872bc2db0d637dd..7f3ca4c92a3a103f7fec9a35e46587d9
          }
  
          @Override
-@@ -428,7 +427,7 @@ public class Slime extends Mob implements Enemy {
+@@ -430,7 +429,7 @@ public class Slime extends Mob implements Enemy {
  
          @Override
          public boolean canUse() {
--            return (this.a.isInWater() || this.a.isInLava()) && this.a.getMoveControl() instanceof net.minecraft.world.entity.monster.Slime.ControllerMoveSlime && this.a.canWander && new SlimeSwimEvent((Slime) this.a.getBukkitEntity()).callEvent(); // Paper
-+            return (this.a.isInWater() || this.a.isInLava()) && this.a.getMoveControl() instanceof net.minecraft.world.entity.monster.Slime.ControllerMoveSlime && this.a.canWander && new SlimeSwimEvent((org.bukkit.entity.Slime) this.a.getBukkitEntity()).callEvent(); // Paper
+-            return (this.a.isInWater() || this.a.aN()) && this.a.getMoveControl() instanceof net.minecraft.world.entity.monster.Slime.ControllerMoveSlime && this.a.canWander && new SlimeSwimEvent((Slime) this.a.getBukkitEntity()).callEvent(); // Paper
++            return (this.a.isInWater() || this.a.aN()) && this.a.getMoveControl() instanceof net.minecraft.world.entity.monster.Slime.ControllerMoveSlime && this.a.canWander && new SlimeSwimEvent((org.bukkit.entity.Slime) this.a.getBukkitEntity()).callEvent(); // Paper
          }
  
          @Override
-@@ -462,7 +461,7 @@ public class Slime extends Mob implements Enemy {
+@@ -464,7 +463,7 @@ public class Slime extends Mob implements Enemy {
              if (--this.c <= 0) {
                  this.c = 40 + this.a.getRandom().nextInt(60);
                  // Paper start
@@ -239,7 +350,7 @@ index 8d24fb86fdf7690cadbe57f2a872bc2db0d637dd..7f3ca4c92a3a103f7fec9a35e46587d9
                  if (!this.a.canWander || !event.callEvent()) return;
                  this.b = event.getNewYaw();
                  // Paper end
-@@ -493,7 +492,7 @@ public class Slime extends Mob implements Enemy {
+@@ -495,7 +494,7 @@ public class Slime extends Mob implements Enemy {
              if (entityliving instanceof Player && ((Player) entityliving).abilities.invulnerable) {
                  return false;
              }
@@ -248,7 +359,7 @@ index 8d24fb86fdf7690cadbe57f2a872bc2db0d637dd..7f3ca4c92a3a103f7fec9a35e46587d9
              // Paper end
          }
  
-@@ -514,7 +513,7 @@ public class Slime extends Mob implements Enemy {
+@@ -516,7 +515,7 @@ public class Slime extends Mob implements Enemy {
              if (entityliving instanceof Player && ((Player) entityliving).abilities.invulnerable) {
                  return false;
              }
@@ -258,7 +369,7 @@ index 8d24fb86fdf7690cadbe57f2a872bc2db0d637dd..7f3ca4c92a3a103f7fec9a35e46587d9
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Witch.java b/src/main/java/net/minecraft/world/entity/monster/Witch.java
-index 44cbf0acf4155a39ad593a95e6da6b2ec084b775..85d37640e4ddeba2b39c91dc88fc7bbef7e5b93e 100644
+index 1e8af31a14100be9f9b53742f0d485b22f43ccb8..8a84b938e50faaf7de61d2b36921b202c3e5b8d0 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Witch.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/Witch.java
 @@ -3,7 +3,6 @@ package net.minecraft.world.entity.monster;
@@ -269,20 +380,20 @@ index 44cbf0acf4155a39ad593a95e6da6b2ec084b775..85d37640e4ddeba2b39c91dc88fc7bbe
  // Paper end
  
  import java.util.Iterator;
-@@ -192,7 +191,7 @@ public class Witch extends Raider implements RangedAttackMob {
+@@ -193,7 +192,7 @@ public class Witch extends Raider implements RangedAttackMob {
  
-     // Paper start
+     // Paper start - moved to its own method
      public void setDrinkingPotion(ItemStack potion) {
 -        setItemSlot(EquipmentSlot.MAINHAND, CraftItemStack.asNMSCopy(WitchReadyPotionEvent.process((Witch) getBukkitEntity(), CraftItemStack.asCraftMirror(potion))));
 +        setItemSlot(EquipmentSlot.MAINHAND, CraftItemStack.asNMSCopy(WitchReadyPotionEvent.process((org.bukkit.entity.Witch) getBukkitEntity(), CraftItemStack.asCraftMirror(potion))));
          setPotionUseTimeLeft(getMainHandItem().getItemUseMaxDuration());
          setDrinkingPotion(true);
-         level.sendSoundEffect(null, getX(), getY(), getZ(), SoundEvents.WITCH_DRINK, getSoundSource(), 1.0F, 0.8F + random.nextFloat() * 0.4F);
+         if (!this.isSilent()) {
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Zombie.java b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
-index fb54868aba4199d34145577530ae264f7f607171..9c3087c711dae2b5f95120634a6cbc6cb22ed9dc 100644
+index c082c4e4c34e28975bd6752890753dc2215c2261..a40c82eafc0fc24456cb25efe1d92835444df840 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Zombie.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
-@@ -68,7 +68,6 @@ import net.minecraft.world.level.block.Blocks;
+@@ -67,7 +67,6 @@ import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.state.BlockState;
  // CraftBukkit start
  import org.bukkit.craftbukkit.event.CraftEventFactory;
@@ -290,28 +401,84 @@ index fb54868aba4199d34145577530ae264f7f607171..9c3087c711dae2b5f95120634a6cbc6c
  import org.bukkit.event.entity.CreatureSpawnEvent;
  import org.bukkit.event.entity.EntityCombustByEntityEvent;
  import org.bukkit.event.entity.EntityTargetEvent;
-@@ -321,7 +320,7 @@ public class Zombie extends Monster {
-             entityzombie.setInvulnerable(this.isInvulnerable());
-             // CraftBukkit start
-             if (CraftEventFactory.callEntityTransformEvent(this, entityzombie, EntityTransformEvent.TransformReason.DROWNED).isCancelled()) {
--                ((Zombie) getBukkitEntity()).setConversionTime(-1); // SPIGOT-5208: End conversion to stop event spam
+@@ -272,14 +271,64 @@ public class Zombie extends Monster {
+     }
+     // Paper end
+ 
++
+     protected void eQ() {
+         this.c(EntityType.DROWNED);
+         if (!this.isSilent()) {
+             this.level.levelEvent((Player) null, 1040, this.getCommandSenderBlockPosition(), 0);
++
+         }
++    }
+ 
++    protected void doUnderWaterConversion() {
++        this.convertTo(EntityType.DROWNED);
++        this.level.levelEvent((Player) null, 1040, new BlockPos(this), 0);
+     }
+ 
++    protected void convertTo(EntityType<? extends net.minecraft.world.entity.monster.Zombie> entitytypes) {
++        if (!this.removed) {
++            net.minecraft.world.entity.monster.Zombie entityzombie = (net.minecraft.world.entity.monster.Zombie) entitytypes.create(this.level);
++
++            entityzombie.copyPosition(this);
++            entityzombie.setCanPickUpLoot(this.canPickUpLoot());
++            entityzombie.setCanBreakDoors(entityzombie.supportsBreakDoorGoal() && this.canBreakDoors());
++            entityzombie.handleAttributes(entityzombie.level.getDamageScaler(new BlockPos(entityzombie)).getSpecialMultiplier());
++            entityzombie.setBaby(this.isBaby());
++            entityzombie.setNoAi(this.isNoAi());
++            EquipmentSlot[] aenumitemslot = EquipmentSlot.values();
++            int i = aenumitemslot.length;
++
++            for (int j = 0; j < i; ++j) {
++                EquipmentSlot enumitemslot = aenumitemslot[j];
++                ItemStack itemstack = this.getItemBySlot(enumitemslot);
++
++                if (!itemstack.isEmpty()) {
++                    entityzombie.setItemSlot(enumitemslot, itemstack.copy());
++                    entityzombie.setDropChance(enumitemslot, this.getEquipmentDropChance(enumitemslot));
++                    itemstack.setCount(0);
++                }
++            }
++
++            if (this.hasCustomName()) {
++                entityzombie.setCustomName(this.getCustomName());
++                entityzombie.setCustomNameVisible(this.isCustomNameVisible());
++            }
++
++            if (this.isPersistenceRequired()) {
++                entityzombie.setPersistenceRequired();
++            }
++
++            entityzombie.setInvulnerable(this.isInvulnerable());
++            // CraftBukkit start
++            if (CraftEventFactory.callEntityTransformEvent(this, entityzombie, EntityTransformEvent.TransformReason.DROWNED).isCancelled()) {
 +                ((org.bukkit.entity.Zombie) getBukkitEntity()).setConversionTime(-1); // SPIGOT-5208: End conversion to stop event spam
-                 return;
-             }
-             // CraftBukkit end
++                return;
++            }
++            // CraftBukkit end
++            if (!new com.destroystokyo.paper.event.entity.EntityTransformedEvent(this.getBukkitEntity(), entityzombie.getBukkitEntity(), com.destroystokyo.paper.event.entity.EntityTransformedEvent.TransformedReason.DROWNED).callEvent()) return; // Paper
++            this.level.addEntity(entityzombie, CreatureSpawnEvent.SpawnReason.DROWNED); // CraftBukkit - added spawn reason
++            this.remove();
++
+     protected void c(EntityType<? extends net.minecraft.world.entity.monster.Zombie> entitytypes) {
+         net.minecraft.world.entity.monster.Zombie entityzombie = (net.minecraft.world.entity.monster.Zombie) this.b(entitytypes);
+ 
 diff --git a/src/main/java/net/minecraft/world/entity/monster/ZombieVillager.java b/src/main/java/net/minecraft/world/entity/monster/ZombieVillager.java
-index 2035a42742758baad0e857e448008d47b5989fa1..33de1ed2651c4fffc5b180c9d7bdc09b8fc7730b 100644
+index 1c62fd423af62241b0d4abfc467e4137ababdd80..15ee0ab34cbb58f5f2b7701d9cb03fa290be85e9 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/ZombieVillager.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/ZombieVillager.java
-@@ -46,7 +46,6 @@ import net.minecraft.world.level.block.Block;
- import net.minecraft.world.level.block.Blocks;
+@@ -49,7 +49,6 @@ import net.minecraft.world.level.block.Blocks;
+ import org.apache.logging.log4j.Logger;
  // CraftBukkit start
  import org.bukkit.craftbukkit.event.CraftEventFactory;
 -import org.bukkit.entity.ZombieVillager;
  import org.bukkit.event.entity.EntityTransformEvent;
  // CraftBukkit end
  
-@@ -235,7 +234,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
+@@ -251,7 +250,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
          entityvillager.setInvulnerable(this.isInvulnerable());
          // CraftBukkit start
          if (CraftEventFactory.callEntityTransformEvent(this, entityvillager, EntityTransformEvent.TransformReason.CURED).isCancelled()) {
@@ -321,10 +488,10 @@ index 2035a42742758baad0e857e448008d47b5989fa1..33de1ed2651c4fffc5b180c9d7bdc09b
          }
          if (!new com.destroystokyo.paper.event.entity.EntityTransformedEvent(this.getBukkitEntity(), entityvillager.getBukkitEntity(), com.destroystokyo.paper.event.entity.EntityTransformedEvent.TransformedReason.CURED).callEvent()) return; // Paper
 diff --git a/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java b/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
-index 77931df273cfe366dc0c28e655ed6856abc19a8c..a2dfffae017e729fc68ffe022a84dc6156d10105 100644
+index 967592f2a1e3f78937aab14f9079eb19bc3c58c7..282e6f7d205d6cd10cb59ec41ee59517085a9bf8 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
-@@ -35,7 +35,6 @@ import net.minecraft.world.level.dimension.DimensionType;
+@@ -35,7 +35,6 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
  import org.bukkit.Bukkit;
  import org.bukkit.craftbukkit.inventory.CraftMerchant;
  import org.bukkit.craftbukkit.inventory.CraftMerchantRecipe;
@@ -332,7 +499,7 @@ index 77931df273cfe366dc0c28e655ed6856abc19a8c..a2dfffae017e729fc68ffe022a84dc61
  import org.bukkit.event.entity.VillagerAcquireTradeEvent;
  // CraftBukkit end
  
-@@ -276,7 +275,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
+@@ -259,7 +258,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
  
              if (merchantrecipe != null) {
                  // CraftBukkit start
@@ -342,10 +509,10 @@ index 77931df273cfe366dc0c28e655ed6856abc19a8c..a2dfffae017e729fc68ffe022a84dc61
                  if (this.valid) {
                      Bukkit.getPluginManager().callEvent(event);
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index d28118851966f3d273fb3bfe4565f156db010015..72069f2154ef4066feed904c03ba0978cab6e88d 100644
+index 9641a51c74acd102f50691d1816f07b4812bac51..5a0a75b53612fa43c86ef4eb2d00c5ec65c803aa 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-@@ -85,7 +85,6 @@ import org.bukkit.Bukkit;
+@@ -91,7 +91,6 @@ import org.bukkit.Bukkit;
  import org.bukkit.craftbukkit.entity.CraftVillager;
  import org.bukkit.craftbukkit.event.CraftEventFactory;
  import org.bukkit.craftbukkit.inventory.CraftMerchantRecipe;
@@ -353,7 +520,7 @@ index d28118851966f3d273fb3bfe4565f156db010015..72069f2154ef4066feed904c03ba0978
  import org.bukkit.event.entity.EntityTransformEvent;
  import org.bukkit.event.entity.VillagerAcquireTradeEvent;
  import org.bukkit.event.entity.VillagerReplenishTradeEvent;
-@@ -454,7 +453,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+@@ -461,7 +460,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
  
                  // CraftBukkit start
                  int bonus = -Mth.floor((float) i * merchantrecipe.getPriceMultiplier());
@@ -363,10 +530,10 @@ index d28118851966f3d273fb3bfe4565f156db010015..72069f2154ef4066feed904c03ba0978
                  if (!event.isCancelled()) {
                      merchantrecipe.addToSpecialPriceDiff(event.getBonus());
 diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
-index 4b1035069fe493bfe63a8727afa2052374d0166c..7cd77da3b1f197fa5ecc6c50dc85f6dd195c9a19 100644
+index cb70ed4ea6a9ebc17114fdb461dc6a1d999709c7..3ebb977e96f3c0e8135c278bb3b996423d30cc85 100644
 --- a/src/main/java/net/minecraft/world/entity/player/Player.java
 +++ b/src/main/java/net/minecraft/world/entity/player/Player.java
-@@ -113,7 +113,6 @@ import net.minecraft.world.scores.Scoreboard;
+@@ -115,7 +115,6 @@ import net.minecraft.world.scores.Scoreboard;
  import org.bukkit.craftbukkit.entity.CraftHumanEntity;
  import org.bukkit.craftbukkit.util.CraftVector;
  import org.bukkit.entity.Item;
@@ -374,7 +541,7 @@ index 4b1035069fe493bfe63a8727afa2052374d0166c..7cd77da3b1f197fa5ecc6c50dc85f6dd
  import org.bukkit.event.entity.CreatureSpawnEvent;
  import org.bukkit.event.entity.EntityCombustByEntityEvent;
  import org.bukkit.event.player.PlayerBedLeaveEvent;
-@@ -694,7 +693,7 @@ public abstract class Player extends LivingEntity {
+@@ -675,7 +674,7 @@ public abstract class Player extends LivingEntity {
              }
  
              // CraftBukkit start - fire PlayerDropItemEvent
@@ -383,20 +550,21 @@ index 4b1035069fe493bfe63a8727afa2052374d0166c..7cd77da3b1f197fa5ecc6c50dc85f6dd
              Item drop = (Item) entityitem.getBukkitEntity();
  
              PlayerDropItemEvent event = new PlayerDropItemEvent(player, drop);
-@@ -1151,7 +1150,11 @@ public abstract class Player extends LivingEntity {
+@@ -1131,7 +1130,12 @@ public abstract class Player extends LivingEntity {
  
                  f *= 0.2F + f2 * f2 * 0.8F;
                  f1 *= f2;
--                // this.ey(); // CraftBukkit - Moved to EntityLiving to reset the cooldown after the damage is dealt
+-                // this.resetAttackCooldown(); // CraftBukkit - Moved to EntityLiving to reset the cooldown after the damage is dealt
 +                // Paper start - PlayerAttackEntityCooldownResetEvent
 +                if (new com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent((org.bukkit.entity.Player) this.getBukkitEntity(), entity.getBukkitEntity(), this.getCooledAttackStrength(0F)).callEvent()) {
 +                    this.resetCooldown(); // reset it like normal
 +                }
 +                // Paper end
++
                  if (f > 0.0F || f1 > 0.0F) {
                      boolean flag = f2 > 0.9F;
                      boolean flag1 = false;
-@@ -1246,7 +1249,7 @@ public abstract class Player extends LivingEntity {
+@@ -1230,7 +1234,7 @@ public abstract class Player extends LivingEntity {
                          if (entity instanceof ServerPlayer && entity.hurtMarked) {
                              // CraftBukkit start - Add Velocity Event
                              boolean cancelled = false;
@@ -405,16 +573,35 @@ index 4b1035069fe493bfe63a8727afa2052374d0166c..7cd77da3b1f197fa5ecc6c50dc85f6dd
                              org.bukkit.util.Vector velocity = CraftVector.toBukkit(vec3d);
  
                              PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
-@@ -1453,7 +1456,7 @@ public abstract class Player extends LivingEntity {
-             bedResult = Either.right(Unit.INSTANCE);
-         }
+@@ -1385,6 +1389,27 @@ public abstract class Player extends LivingEntity {
+     }
  
--        if (this.getBukkitEntity() instanceof Player) {
+     public Either<net.minecraft.world.entity.player.Player.BedSleepingProblem, Unit> sleep(BlockPos blockposition, boolean force) {
++<<<<<<< HEAD
++=======
++        Direction enumdirection = (Direction) this.level.getBlockState(blockposition).getValue(HorizontalDirectionalBlock.FACING);
++        Either<net.minecraft.world.entity.player.Player.BedSleepingProblem, Unit> bedResult = this.getBedResult(blockposition, enumdirection);
++
++        if (bedResult.left().orElse(null) == net.minecraft.world.entity.player.Player.BedSleepingProblem.OTHER_PROBLEM) {
++            return bedResult; // return immediately if the result is not bypassable by plugins
++        }
++
++        if (force) {
++            bedResult = Either.right(Unit.INSTANCE);
++        }
++
 +        if (this.getBukkitEntity() instanceof org.bukkit.entity.Player) {
-             bedResult = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerBedEnterEvent(this, blockposition, bedResult);
- 
-             if (bedResult.left().isPresent()) {
-@@ -1502,8 +1505,8 @@ public abstract class Player extends LivingEntity {
++            bedResult = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerBedEnterEvent(this, blockposition, bedResult);
++
++            if (bedResult.left().isPresent()) {
++                return bedResult;
++            }
++        }
++>>>>>>> Toothpick
+         // CraftBukkit end
+         this.startSleeping(blockposition);
+         this.sleepCounter = 0;
+@@ -1399,8 +1424,8 @@ public abstract class Player extends LivingEntity {
          }
  
          // CraftBukkit start - fire PlayerBedLeaveEvent
@@ -426,18 +613,18 @@ index 4b1035069fe493bfe63a8727afa2052374d0166c..7cd77da3b1f197fa5ecc6c50dc85f6dd
              org.bukkit.block.Block bed;
              if (bedPosition != null) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 4b123f1b3fca6da59e02ce990796186b9261a2e6..3511dd961de0529502714b06e1e5cd84fe8a0b0f 100644
+index b66de5579832882b402b367499912031ad609be5..6a189d4108ea80dce87fbd549b3f8c8349d095d8 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -10,6 +10,7 @@ import com.google.common.base.MoreObjects;
- import com.google.common.collect.Lists;
+@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
+ import com.mojang.serialization.Codec;
  import java.io.IOException;
  import java.util.Collection;
 +import java.util.Collections;
  import java.util.Iterator;
  import java.util.List;
  import java.util.Random;
-@@ -955,7 +956,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1009,7 +1010,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      @Override
      public boolean noCollision(@Nullable Entity entity, AABB axisAlignedBB) {
          if (entity instanceof ArmorStand && !entity.level.paperConfig.armorStandEntityLookups) return false;
@@ -447,10 +634,10 @@ index 4b123f1b3fca6da59e02ce990796186b9261a2e6..3511dd961de0529502714b06e1e5cd84
      // Paper end
  
 diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-index cd0d98190216de94def9431979fc1e6a735a3ba1..4712f3287bbe70352a13bd8ff750d28ea02e1f8c 100644
+index 4523957ecb4b657fcf11317e59eedb465bd00756..55af254f9d4ac770d1476bb169cecf90fff88732 100644
 --- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 +++ b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-@@ -446,11 +446,11 @@ public class MapItemSavedData extends SavedData {
+@@ -456,11 +456,11 @@ public class MapItemSavedData extends SavedData {
  
          // Paper start
          private void addSeenPlayers(java.util.Collection<MapDecoration> icons) {
@@ -465,10 +652,10 @@ index cd0d98190216de94def9431979fc1e6a735a3ba1..4712f3287bbe70352a13bd8ff750d28e
                  }
              });
 diff --git a/src/main/java/net/minecraft/world/level/storage/loot/entries/LootPoolSingletonContainer.java b/src/main/java/net/minecraft/world/level/storage/loot/entries/LootPoolSingletonContainer.java
-index 51aaaa44e0e4445812e7545648ea5839aa524406..968db1ab1fd6cf662d78a2adeb7b2724d67528a2 100644
+index 8b1e635ec79500e73d02a5491dd4bb35bc7cb57a..e80630c5a2b6df4a62c71a469fb5f3c2f3495db9 100644
 --- a/src/main/java/net/minecraft/world/level/storage/loot/entries/LootPoolSingletonContainer.java
 +++ b/src/main/java/net/minecraft/world/level/storage/loot/entries/LootPoolSingletonContainer.java
-@@ -166,7 +166,7 @@ public abstract class LootPoolSingletonContainer extends LootPoolEntryContainer
+@@ -163,7 +163,7 @@ public abstract class LootPoolSingletonContainer extends LootPoolEntryContainer
              }
              // This is vanilla
              float qualityModifer = (float) getQuality() * f;
@@ -478,7 +665,7 @@ index 51aaaa44e0e4445812e7545648ea5839aa524406..968db1ab1fd6cf662d78a2adeb7b2724
                  // Random boost to avoid losing precision in the final int cast on return
                  final int weightBoost = 100;
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index d6e5d014c0d81f5f7cff6638ccfc2e983fea53d9..b6125338b164903e8397a7d6f0aa6b348f6f933f 100644
+index feb45475bb3c0785a8d8198615fbf4b3cd99acbe..fe8e2b17a6517c699a58c048187ca02d119b4ed1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -314,8 +314,8 @@ public class Main {

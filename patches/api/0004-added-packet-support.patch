@@ -5,7 +5,7 @@ Subject: [PATCH] added packet support
 
 
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index a9c10228eeeaac89361c695a5ab90161b6358ca1..099d4f140bf056d1b0017cb62b6d6f925152a594 100644
+index 329e2dd1c057788d6bb5a1adc7ee9282820e927d..e88a6d0a395d78b3a1323e351cc82b7c75bfd8f3 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
 @@ -40,6 +40,7 @@ import org.bukkit.inventory.Recipe;
@@ -16,7 +16,7 @@ index a9c10228eeeaac89361c695a5ab90161b6358ca1..099d4f140bf056d1b0017cb62b6d6f92
  import org.bukkit.permissions.Permissible;
  import org.bukkit.plugin.PluginManager;
  import org.bukkit.plugin.ServicesManager;
-@@ -1713,6 +1714,11 @@ public final class Bukkit {
+@@ -1745,6 +1746,11 @@ public final class Bukkit {
      }
      // Paper end
  
@@ -29,7 +29,7 @@ index a9c10228eeeaac89361c695a5ab90161b6358ca1..099d4f140bf056d1b0017cb62b6d6f92
      public static Server.Spigot spigot() {
          return server.spigot();
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index cc06492f46ba5776221cd2614c1dcd8f33cc8faf..168774f737e8cd13d2dd0571da77ff3f7d04df2b 100644
+index b464cc1a70aca3450a5de84a657a1e069a1a8ab6..efc8c9e4c854e4a1cfece99600b7e66f0d40cd6b 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
 @@ -40,6 +40,7 @@ import org.bukkit.inventory.Recipe;
@@ -40,7 +40,7 @@ index cc06492f46ba5776221cd2614c1dcd8f33cc8faf..168774f737e8cd13d2dd0571da77ff3f
  import org.bukkit.permissions.Permissible;
  import org.bukkit.plugin.PluginManager;
  import org.bukkit.plugin.ServicesManager;
-@@ -1496,4 +1497,8 @@ public interface Server extends PluginMessageRecipient {
+@@ -1524,4 +1525,8 @@ public interface Server extends PluginMessageRecipient {
      @NotNull
      com.destroystokyo.paper.entity.ai.MobGoals getMobGoals();
      // Paper end

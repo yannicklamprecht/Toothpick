@@ -5,10 +5,10 @@ Subject: [PATCH] use fqn for bukkit classes
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/npc/WanderingTrader.java b/src/main/java/net/minecraft/world/entity/npc/WanderingTrader.java
-index 2a13ed619e8428ed17febe4ef60ea38817e19e78..38bbe466a01f11b17e0106b96a258cc714b12df2 100644
+index 7867f0fe79ea9fa641010eeb8631a87a76e2ebac..4adcb363d4f36be8633bbdd486df6b4d0974fcd6 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/WanderingTrader.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/WanderingTrader.java
-@@ -46,7 +46,6 @@ import net.minecraft.world.phys.Vec3;
+@@ -47,7 +47,6 @@ import net.minecraft.world.phys.Vec3;
  // CraftBukkit start
  import org.bukkit.Bukkit;
  import org.bukkit.craftbukkit.inventory.CraftMerchantRecipe;
@@ -16,7 +16,7 @@ index 2a13ed619e8428ed17febe4ef60ea38817e19e78..38bbe466a01f11b17e0106b96a258cc7
  import org.bukkit.event.entity.VillagerAcquireTradeEvent;
  // CraftBukkit end
  
-@@ -140,7 +139,7 @@ public class WanderingTrader extends net.minecraft.world.entity.npc.AbstractVill
+@@ -138,7 +137,7 @@ public class WanderingTrader extends net.minecraft.world.entity.npc.AbstractVill
  
              if (merchantrecipe != null) {
                  // CraftBukkit start

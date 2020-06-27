@@ -5,11 +5,11 @@ Subject: [PATCH] removed obfuscation helper
 
 
 diff --git a/src/main/java/net/minecraft/core/SectionPos.java b/src/main/java/net/minecraft/core/SectionPos.java
-index 59b2adbf423c257c321abe6f64c3b0051bc277ef..29af31be9f093e80bcca010ef2d7434c34f7ca95 100644
+index bc94aeaef56670475492d469161ed4e7dd698853..d27ab6332642f3b121cb0bfef7150b1128489ee5 100644
 --- a/src/main/java/net/minecraft/core/SectionPos.java
 +++ b/src/main/java/net/minecraft/core/SectionPos.java
 @@ -114,7 +114,6 @@ public class SectionPos extends Vec3i {
-         return (z << 4) + 15; // Paper
+         return (this.z() << 4) + 15;
      }
  
 -    public static long blockToSection(long i) { return blockToSection(i); } // Paper - OBFHELPER
@@ -25,19 +25,53 @@ index 59b2adbf423c257c321abe6f64c3b0051bc277ef..29af31be9f093e80bcca010ef2d7434c
          return (((long) i & 4194303L) << 42) | (((long) j & 1048575L)) | (((long) k & 4194303L) << 20); // Paper - Simplify to reduce instruction count
      }
 diff --git a/src/main/java/net/minecraft/world/level/block/Block.java b/src/main/java/net/minecraft/world/level/block/Block.java
-index 8594d40106265517d24a70882f012b6de20220c1..994f64142c7f35084d4dfa377558f330ccc12d5e 100644
+index b92a46101e7c801da474321f98973e14d344f581..17d0cf07b8d0cdd372a70dbac7c7b0a3d1c80c86 100644
 --- a/src/main/java/net/minecraft/world/level/block/Block.java
 +++ b/src/main/java/net/minecraft/world/level/block/Block.java
-@@ -367,7 +367,6 @@ public class Block implements ItemLike {
-         return false;
+@@ -188,7 +188,40 @@ public class Block extends BlockBase implements ItemLike {
      }
  
--    public final boolean canOcclude(BlockState blockData) { return canOcclude(blockData); } @Deprecated // Paper - OBFHELPER
-     public final boolean canOcclude(BlockState iblockdata) {
-         return this.canOcclude;
+     public boolean isRandomlyTicking(BlockState iblockdata) {
+-        return this.av;
++        return this.isTicking;
++    }
++
++    public boolean isEntityBlock() {
++        return this instanceof EntityBlock;
++    }
++
++    @Deprecated
++    public boolean hasPostProcess(BlockState iblockdata, BlockGetter iblockaccess, BlockPos blockposition) {
++        return false;
++    }
++
++    public final boolean canOcclude(BlockState iblockdata) {
++        return this.canOcclude;
++    }
++
++    @Deprecated
++    public VoxelShape getShape(BlockState iblockdata, BlockGetter iblockaccess, BlockPos blockposition, CollisionContext voxelshapecollision) {
++        return Shapes.block();
++    }
++
++    @Deprecated
++    public VoxelShape getCollisionShape(BlockState iblockdata, BlockGetter iblockaccess, BlockPos blockposition, CollisionContext voxelshapecollision) {
++        return this.hasCollision ? iblockdata.getShape(iblockaccess, blockposition) : Shapes.empty();
++    }
++
++    @Deprecated
++    public VoxelShape getOcclusionShape(BlockState iblockdata, BlockGetter iblockaccess, BlockPos blockposition) {
++        return iblockdata.getShape(iblockaccess, blockposition);
++    }
++
++    @Deprecated
++    public VoxelShape getInteractionShape(BlockState iblockdata, BlockGetter iblockaccess, BlockPos blockposition) {
++        return Shapes.empty();
      }
+ 
+     public static boolean canSupportRigidBlock(BlockGetter iblockaccess, BlockPos blockposition) {
 diff --git a/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java b/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java
-index 098da4f8b7459f0c7dd9582417f86e54e23f8271..7efa10a402b50d35b1e81b0e963266febff13ace 100644
+index 38b94894e053f3642537c858a14f75c920667399..630c3a0a7482d7c8c716f644d332cdbccfd5e75c 100644
 --- a/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java
 +++ b/src/main/java/net/minecraft/world/level/lighting/LayerLightEngine.java
 @@ -24,7 +24,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten

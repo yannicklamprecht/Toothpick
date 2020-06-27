@@ -5,10 +5,10 @@ Subject: [PATCH] fix accessibility of distance manager
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 8673cf6111bda494232b530a3a370725e1161fdb..6b0d5a39f3d6efc4610a5bcb31cb28def7cfe7c5 100644
+index cd1699450fefeeab35cc30519373f530dee51c97..1684c1b81a9241fd1d2f73c67b1f6fdfc4ea7786 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
-@@ -2453,7 +2453,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
+@@ -2489,7 +2489,7 @@ Sections go from 0..16. Now whenever a section is not empty, it can potentially
          }
      }
  

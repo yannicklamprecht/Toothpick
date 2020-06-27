@@ -5,7 +5,7 @@ Subject: [PATCH] add trigger block entity to api
 
 
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 9518da825ed752c5a477ca9132de50f923f9192d..5bdaaa42c2c39090c832b53fc4b3373c9fd5fead 100644
+index 75c9225bd07b4c4b6dcd702c52294a7637eb6884..245c389b15514eea8a66ae5ed18ea810ee3a274d 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
 @@ -45,6 +45,8 @@ import org.jetbrains.annotations.Nullable;

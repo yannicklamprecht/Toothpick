@@ -5,10 +5,10 @@ Subject: [PATCH] add method to allow enchantment registry again
 
 
 diff --git a/src/main/java/org/bukkit/enchantments/Enchantment.java b/src/main/java/org/bukkit/enchantments/Enchantment.java
-index d1885f178f0b307cdbb08d4fda1ab9cd53f97bc9..2e8c1e663f92a2da5133b539c9331dab786a1bb7 100644
+index b833ef63fbe01271ceb2bd83a9eb4a84c9912761..b8f6e8da6863f3aef4f76a144870804949defa40 100644
 --- a/src/main/java/org/bukkit/enchantments/Enchantment.java
 +++ b/src/main/java/org/bukkit/enchantments/Enchantment.java
-@@ -349,6 +349,13 @@ public abstract class Enchantment implements Keyed {
+@@ -354,6 +354,13 @@ public abstract class Enchantment implements Keyed {
          acceptingNew = false;
      }
  
