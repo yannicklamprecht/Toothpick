@@ -4,6 +4,7 @@
 public net.minecraft.server.ChunkProviderServer$a
 public net.minecraft.server.LoginListener$EnumProtocolState
 public net.minecraft.server.DataBits$DataBitConsumer
+public net.minecraft.server.ExplosionDamageCalculatorEntity
 
 # fields
 public net.minecraft.server.WorldServer hasPhysicsEvent
