@@ -1,0 +1,88 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ysl3000 <yannicklamprecht@live.de>
+Date: Sat, 25 Jul 2020 16:05:37 +0200
+Subject: [PATCH] add missing deprecated annotations
+
+
+diff --git a/pom.xml b/pom.xml
+index cb37aea9d7f60b54b95b5cf1798d5a6c5c0e7c14..dcf6067c4fc3e8ff78eb8a21d6444dfba86afd03 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -39,6 +39,19 @@
+             <id>sonatype</id>
+             <url>https://oss.sonatype.org/content/groups/public/</url>
+         </repository>
++
++        <repository>
++            <id>md_5-releases</id>
++            <url>https://repo.md-5.net/content/repositories/releases/</url>
++        </repository>
++        <repository>
++            <id>aikar</id>
++            <url>https://repo.aikar.co/content/groups/aikar/</url>
++        </repository>
++        <repository>
++            <id>destroystokyo-repo</id>
++            <url>https://papermc.io/repo/repository/maven-public/</url>
++        </repository>
+     </repositories>
+ 
+     <pluginRepositories>
+diff --git a/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java b/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java
+index 8b1fdb9d2869d4c1862d557c91bf8a1d8c537507..626e97bbcaa19d55475a0fc8770412d437af2733 100644
+--- a/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java
++++ b/src/main/java/com/destroystokyo/paper/event/player/PlayerInitialSpawnEvent.java
+@@ -8,6 +8,7 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
+ /**
+  * @deprecated Use {@link PlayerSpawnLocationEvent}, Duplicate API
+  */
++@Deprecated
+ public class PlayerInitialSpawnEvent extends PlayerSpawnLocationEvent {
+ 
+     public PlayerInitialSpawnEvent(@NotNull Player who, @NotNull Location spawnLocation) {
+diff --git a/src/main/java/org/bukkit/entity/LingeringPotion.java b/src/main/java/org/bukkit/entity/LingeringPotion.java
+index f124b35ec76e6cb6a1a0dc464005087043c3efd0..bafef53c1d449135f1300c8c8fbb06f482ba67e1 100644
+--- a/src/main/java/org/bukkit/entity/LingeringPotion.java
++++ b/src/main/java/org/bukkit/entity/LingeringPotion.java
+@@ -5,4 +5,5 @@ package org.bukkit.entity;
+  *
+  * @deprecated lingering status depends on only on the potion item.
+  */
++@Deprecated
+ public interface LingeringPotion extends ThrownPotion { }
+diff --git a/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java b/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java
+index 2ff1b1308571d8f8056d3359e8a8ba4a589c3726..0cb628e193addda19d994d2767dd168e5ae46d0c 100644
+--- a/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java
++++ b/src/main/java/org/bukkit/event/enchantment/PrepareItemEnchantEvent.java
+@@ -68,6 +68,7 @@ public class PrepareItemEnchantEvent extends InventoryEvent implements Cancellab
+      * @return experience level costs offered
+      * @deprecated Use {@link #getOffers()} instead of this method
+      */
++    @Deprecated
+     @NotNull
+     public int[] getExpLevelCostsOffered() {
+         int[] levelOffers = new int[offers.length];
+diff --git a/src/main/java/org/bukkit/inventory/ItemStack.java b/src/main/java/org/bukkit/inventory/ItemStack.java
+index ccd81fca25233c2a9c2a8c3f4dda3053d7b2e723..7f82907ed83d3aa013c172c8a4465e8da5dea4c8 100644
+--- a/src/main/java/org/bukkit/inventory/ItemStack.java
++++ b/src/main/java/org/bukkit/inventory/ItemStack.java
+@@ -69,6 +69,7 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
+      * @param damage durability / damage
+      * @deprecated see {@link #setDurability(short)}
+      */
++    @Deprecated
+     public ItemStack(@NotNull final Material type, final int amount, final short damage) {
+         this(type, amount, damage, null);
+     }
+diff --git a/src/main/java/org/bukkit/material/Step.java b/src/main/java/org/bukkit/material/Step.java
+index 9f502e7ee05d0512e190a1722cc112ece068c4e2..4286f6a968d40da194d850054e95244db0687766 100644
+--- a/src/main/java/org/bukkit/material/Step.java
++++ b/src/main/java/org/bukkit/material/Step.java
+@@ -78,6 +78,7 @@ public class Step extends TexturedMaterial {
+      *
+      * @deprecated Magic value
+      */
++    @Deprecated
+     @Override
+     protected int getTextureIndex() {
+         return getData() & 0x7;

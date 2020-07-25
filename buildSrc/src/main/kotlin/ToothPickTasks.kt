@@ -64,6 +64,7 @@ fun Project.initToothPickTasks(toothPickExtension: ToothPickExtension) = run {
                 // Apply patches
                 val patches = patchesDir.listFiles()
                         ?.filter { it.name.endsWith(".patch") }
+                        ?.sortedWith(naturalOrder())
                         ?.takeIf { it.isNotEmpty() } ?: continue
 
                 logger.lifecycle(">>> Applying patches to $name")
