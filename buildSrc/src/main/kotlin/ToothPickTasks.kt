@@ -12,7 +12,7 @@ import toothpick.initRemappingTasks
 import java.io.File
 import dumstuff.dumShitTasks
 
-fun Project.initToothPickTasks() = run {
+fun Project.initToothPickTasks(toothPickExtension: ToothPickExtension) = run {
     val initGitSubmodules: Task by project.tasks.creating {
         group = taskGroupPublic
         onlyIf {
@@ -108,7 +108,7 @@ fun Project.initToothPickTasks() = run {
 
     val mojangMappings: Task by tasks.creating {
         group = taskGroupPublic
-        initRemappingTasks(project).forEach {
+        initRemappingTasks(project, toothPickExtension).forEach {
             dependsOn(it)
             it.mustRunAfter(loadData)
         }

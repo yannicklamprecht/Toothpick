@@ -6,7 +6,8 @@ import org.gradle.kotlin.dsl.*
 class ToothPick : Plugin<Project> {
 
     override fun apply(target: Project) {
-        target.extensions.create<ToothPickExtension>("toothpick", target.objects)
+        val toothPickExtension = target.extensions.create<ToothPickExtension>("toothpick", target.objects)
+        target.initToothPickTasks(toothPickExtension)
     }
 }
 
