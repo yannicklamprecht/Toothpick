@@ -1,3 +1,4 @@
+import dumstuff.dumShitTasks
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.kotlin.dsl.creating
@@ -6,11 +7,12 @@ import paper.applyPatches
 import paper.decompile
 import paper.init
 import paper.remap
+import stuff.repoId
+import stuff.repoUrl
 import stuff.taskGroupPrivate
 import stuff.taskGroupPublic
 import toothpick.initRemappingTasks
 import java.io.File
-import dumstuff.dumShitTasks
 
 fun Project.initToothPickTasks(toothPickExtension: ToothPickExtension) = run {
     val initGitSubmodules: Task by project.tasks.creating {
@@ -56,7 +58,7 @@ fun Project.initToothPickTasks(toothPickExtension: ToothPickExtension) = run {
                 // Reset or initialize subproject
                 logger.lifecycle(">>> Resetting subproject $name")
                 if (projectDir.exists()) {
-                   projectDir.deleteRecursively()
+                    projectDir.deleteRecursively()
                 }
                 ensureSuccess(cmd("git", "clone", sourceRepo.absolutePath, projectDir.absolutePath, directory = rootDir))
 
@@ -136,5 +138,41 @@ fun Project.initToothPickTasks(toothPickExtension: ToothPickExtension) = run {
     cleanUp.name
 
     dumShitTasks(project)[0].name
+
+    val installLocalMaven: Task by tasks.creating {
+        group = taskGroupPublic
+        doLast {
+            for ((_, stuff) in toothPick.subProjects) {
+                val (_, projectDir, _) = stuff
+                logger.lifecycle("Installing into local maven $projectDir...")
+                projectDir.resolve("build/libs").listFiles { file -> file.name.endsWith(".jar") }?.forEach { file ->
+                    kotlin.runCatching {
+                        cmd("mvn", "install:install-file", "-Dfile=" + file.toPath().toString(), "-DpomFile=" + projectDir.resolve("pom.xml").toString(), directory = projectDir)
+                    }
+                }
+            }
+        }
+    }
+    installLocalMaven.name
+
+    val deployMaven: Task by tasks.creating {
+        group = taskGroupPublic
+        doLast {
+            if (repoId.isNullOrBlank() || repoUrl.isNullOrBlank()) {
+                logger.warn("stuff.repoId or stuff.repoUrl is not set, abborting.")
+                return@doLast
+            }
+            for ((_, stuff) in toothPick.subProjects) {
+                val (_, projectDir, _) = stuff
+                logger.lifecycle("Installing into local maven $projectDir...")
+                projectDir.resolve("build/libs").listFiles { file -> file.name.endsWith(".jar") }?.forEach { file ->
+                    kotlin.runCatching {
+                        cmd("mvn", "deploy:deploy-file", "-DrepositoryId=$repoId", "-Durl=$repoUrl", "-Dfile=${file.toPath()}", "-DpomFile=${projectDir.resolve("pom.xml")}", directory = projectDir)
+                    }
+                }
+            }
+        }
+    }
+    deployMaven.name
 
 }
