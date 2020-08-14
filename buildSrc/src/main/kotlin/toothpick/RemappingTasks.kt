@@ -80,7 +80,7 @@ fun initRemappingTasks(project: Project, toothPick: ToothPickExtension): List<Ta
             project.logger.info("Reading mojang...")
             val mojangFile = projectDirectory.resolve("work/server.txt")
             if (!mojangFile.exists()) {
-                mojangFile.writeText(URL("https://launcher.mojang.com/v1/objects/618315f1fc2f56fe003612bb1fee1ad4060768a0/server.txt").readText())
+                mojangFile.writeText(URL(toothPick.serverMappings).readText())
             }
             val mojangMappings = MappingFormats.byId("proguard").read(mojangFile.toPath())
 

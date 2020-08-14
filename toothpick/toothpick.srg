@@ -57,6 +57,7 @@ MD: net/minecraft/server/World/getChunkAt (II)Lnet/minecraft/server/Chunk; net/m
 MD: net/minecraft/server/World/getChunkAt (Lnet/minecraft/server/BlockPosition;)Lnet/minecraft/server/Chunk; net/minecraft/world/level/Level/getChunkAt (Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;
 MD: net/minecraft/server/ChunkSection/a (Lnet/minecraft/server/ChunkSection;)Z net/minecraft/world/level/chunk/LevelChunkSection/isEmptyOH (Lnet/minecraft/world/level/chunk/LevelChunkSection;)Z
 MD: net/minecraft/server/DataConverterRegistry/a ()Lcom/mojang/datafixers/DataFixer; net/minecraft/util/datafix/DataFixers/getDataFixerOH ()Lcom/mojang/datafixers/DataFixer;
+MD: net/minecraft/server/Entity/canCollideWith (Lnet/minecraft/server/Entity;)Z; net/minecraft/world/entity/Entity/canCollideWithOH (Lnet/minecraft/world/entity/Entity;)Z
 # this breaks the compiler?!
 MD: net/minecraft/server/WorldServer/getChunkProvider ()Lnet/minecraft/server/ChunkProviderServer; net/minecraft/server/level/ServerLevel/getChunkSourceOH ()Lnet/minecraft/server/level/ServerChunkCache;
 MD: net/minecraft/server/ChunkProviderServer/getWorld ()Lnet/minecraft/server/World; net/minecraft/server/level/ServerChunkCache/getLevel ()Lnet/minecraft/world/level/Level;

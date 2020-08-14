@@ -5,7 +5,7 @@ Subject: [PATCH] add missing deprecated annotations
 
 
 diff --git a/pom.xml b/pom.xml
-index cb37aea9d7f60b54b95b5cf1798d5a6c5c0e7c14..dcf6067c4fc3e8ff78eb8a21d6444dfba86afd03 100644
+index 1a34f6880b45e3c46a8e29575b549f3a601721e7..05b9face2c9e2112e13b9ad9344bda4e2ab8a3c2 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -39,6 +39,19 @@

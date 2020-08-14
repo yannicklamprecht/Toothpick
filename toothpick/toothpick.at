@@ -65,7 +65,7 @@ public net.minecraft.server.PlayerInventory getComponents()Ljava/util/List;
 public net.minecraft.server.EntityHuman releaseShoulderEntities()V;
 public net.minecraft.server.Entity setYawPitch(FF)V;
 public net.minecraft.server.PlayerChunkMap addEntity(Lnet/minecraft/server/Entity;)V;
-public net.minecraft.server.Block dropExperience(Lnet/minecraft/server/World;Lnet/minecraft/server/BlockPosition;ILnet/minecraft/server/EntityPlayer;)V;
+public net.minecraft.server.Block dropExperience(Lnet/minecraft/server/WorldServer;Lnet/minecraft/server/BlockPosition;ILnet/minecraft/server/EntityPlayer;)V;
 public net.minecraft.server.ChunkProviderServer addLoadedChunk(Lnet/minecraft/server/Chunk;)V;
 public net.minecraft.server.ChunkProviderServer removeLoadedChunk(Lnet/minecraft/server/Chunk;)V;
 public net.minecraft.server.IBlockAccess getTileEntity(Lnet/minecraft/server/BlockPosition;)Lnet/minecraft/server/TileEntity;
@@ -87,7 +87,7 @@ public net.minecraft.server.RegionFileSection getSection(J)Ljava/util/Optional;
 public net.minecraft.server.VillagePlaceRecord decreaseVacancy()Z
 public net.minecraft.server.NetworkManager getPlayer()Lnet/minecraft/server/EntityPlayer;
 public net.minecraft.server.Entity k()Z
-public net.minecraft.server.EntityTurtle eV()Z
+public net.minecraft.server.EntityTurtle eU()Z
 public net.minecraft.server.EntitySlime m()F
 public com.destroystokyo.paper.server.ticklist.PaperTickList nextTick()V
 public net.minecraft.server.BaseBlockPosition o(I)V
