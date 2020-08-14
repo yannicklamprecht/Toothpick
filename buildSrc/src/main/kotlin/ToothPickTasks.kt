@@ -75,6 +75,9 @@ fun Project.initToothPickTasks(toothPickExtension: ToothPickExtension) = run {
                 ensureSuccess(cmd(*gitCommand.toTypedArray(), directory = projectDir, printToStdout = true))
                 logger.lifecycle(">>> Done")
             }
+            logger.lifecycle(">>> Copying over resources")
+            projectDir.resolve("work/Paper/Paper-Server/src/main/resources/")
+                    .copyRecursively(projectDir.resolve("MiniPaper-Server/src/main/resources/"))
         }
     }
     applyPatches.name

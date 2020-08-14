@@ -112,7 +112,6 @@ fun initRemappingTasks(project: Project, toothPick: ToothPickExtension): List<Ta
 
             ensureSuccess(cmd("git", "am", "--3way", projectDirectory.resolve("toothpick/preremapping.patch").absolutePath, directory = paper))
 
-            // TODO fix me, we are losing paper-servers resources folder here
             if (Files.isDirectory(outputDir)) {
                 outputDir.toFile().deleteRecursively()
             }

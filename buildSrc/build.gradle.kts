@@ -3,7 +3,7 @@ val kotlinxSerializationVersion = "0.20.0"
 val mercuryVersion = "0.1.0-SNAPSHOT"
 val lorenzVersion = "0.6.0-SNAPSHOT"
 val atlasVersion = "0.3.0-SNAPSHOT"
-val bombeVersion = "0.4.0"
+val bombeVersion = "0.5.0-SNAPSHOT"
 
 plugins {
     `kotlin-dsl`
@@ -15,6 +15,7 @@ repositories {
     mavenLocal()
     jcenter()
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    maven("http://artifactory.autocrm.net/artifactory/oss-sonatype-snapshots/")
 }
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx.dom:$kotlinxDomVersion")
