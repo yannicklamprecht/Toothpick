@@ -49,4 +49,4 @@ index f625da9f0968b6f41e302b628c4439198eb4ed64..f9c0f52920d27fb71ef4b252b3c9152d
 +            final Long2ObjectMap.Entry<PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<E>> entry = iterator.next();
              final long key = entry.getLongKey();
              final PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<E> map = entry.getValue();
- 
+

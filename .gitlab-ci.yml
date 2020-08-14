@@ -1,0 +1,60 @@
+# This file is a template, and might need editing before it works on your project.
+# This is the Gradle build system for JVM applications
+# https://gradle.org/
+# https://github.com/gradle/gradle
+image: maven:3.6.3-adoptopenjdk-14
+
+# Disable the Gradle daemon for Continuous Integration servers as correctness
+# is usually a priority over speed in CI environments. Using a fresh
+# runtime for each build is more reliable since the runtime is completely
+# isolated from any previous builds.
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+stages:
+  - cleanup
+  - setup
+  - mappings
+  - patches
+  - build
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  - git config --global user.email "dummy-user@server.local"
+  - git config --global user.name "Dummy User"
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+    - .m2/repository
+    - work
+
+cleanup:
+  stage: cleanup
+  script:
+    - ./gradlew cleanUp
+
+setup:
+  stage: setup
+  script:
+    - ./gradlew setupUpstream
+
+mappings:
+  stage: mappings
+  script:
+    - ./gradlew mojangMappings
+
+patches:
+  stage: patches
+  script:
+    - ./gradlew applyPatches
+
+build:
+  stage: build
+  script:
+    - ./gradlew shadowJar
+  artifacts:
+    paths:
+      - MiniPaper-API/build/libs/*
+      - MiniPaper-Server/build/libs/*
