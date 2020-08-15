@@ -1,6 +1,6 @@
 val kotlinxDomVersion = "0.0.10"
 val kotlinxSerializationVersion = "0.20.0"
-val mercuryVersion = "0.1.0-SNAPSHOT"
+val mercuryVersion = "0.1.1-error-handling-SNAPSHOT"
 val lorenzVersion = "0.6.0-SNAPSHOT"
 val atlasVersion = "0.3.0-SNAPSHOT"
 val bombeVersion = "0.5.0-SNAPSHOT"
@@ -12,10 +12,11 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    // mavenLocal()
     jcenter()
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("http://artifactory.autocrm.net/artifactory/oss-sonatype-snapshots/")
+    maven("https://repo.minidigger.me/repository/dyescape-public/")
 }
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx.dom:$kotlinxDomVersion")
